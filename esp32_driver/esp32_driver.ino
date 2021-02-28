@@ -1,16 +1,33 @@
 /*
  *  This sketch demonstrates how to scan WiFi networks.
- *  The API is almost the same as with the WiFi Shield library,
- *  the most obvious difference being the different file you need to include:
+ *  This sketch also uses android OTA
  */
 #include "WiFi.h"
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+#include "soc/rtc_cntl_reg.h"
+
+#include "esp_wifi.h"
+#include "esp_system.h"
+#include "nvs_flash.h"
+#include "esp_event_loop.h"
+#include "esp_log.h"
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
+#include "freertos/queue.h"
+#include "freertos/event_groups.h"
+
+#include "os.h"
 
 const char* ssid = "The515";
 const char* password ="Bluemoon696!";
 int counter;
+
+
+
  
 void setup()
 {
@@ -22,8 +39,37 @@ void setup()
     delay(100);
 
     bensOTABuilder();
- 
+    csiSetup();
+  
     Serial.println("Setup done");
+}
+
+void csiSetup(){
+
+  //https://github.com/jonathanmuller/ESP32-gather-channel-state-information-CSI-/blob/master/create_STA_and_AP/STA/main/scan.c
+
+  Serial.println("Setting up CSI Handler");
+  wifi_csi_config_t configuration_csi;
+  configuration_csi.lltf_en = 1;
+  configuration_csi.htltf_en = 1;
+  configuration_csi.stbc_htltf2_en = 1;
+  configuration_csi.ltf_merge_en = 1;
+  configuration_csi.channel_filter_en = 1;
+  configuration_csi.manu_scale = 0;
+
+  esp_wifi_set_csi_config(&configuration_csi);
+  esp_wifi_set_csi_rx_cb(&handleCSI, NULL);
+}
+
+void handleCSI(void *ctx, wifi_csi_info_t *data){
+  Serial.println("Got CSI Packets");
+  wifi_csi_info_t received = data[0];
+  int8_t* my_ptr = received.buf;
+  for(int i = 0; i < received.len; i++)
+  {
+      printf("%d ", my_ptr[i]);
+  }
+  
 }
 
 void bensOTABuilder(){
@@ -55,14 +101,14 @@ void bensOTABuilder(){
     });
 
   ArduinoOTA.begin();
-
-  Serial.println("Ready");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 }
 
 void scanWifi(){
-  Serial.println("Scanning Starting");
+  if(counter++>5000){
+    counter = 0;
+    Serial.println("Scanning Starting");
  
     // WiFi.scanNetworks will return the number of networks found
     int n = WiFi.scanNetworks();
@@ -85,14 +131,14 @@ void scanWifi(){
         }
     }
     Serial.println("");
+  }
+  
 }
  
 void loop()
 {
+    wifi_csi_info_t inty;
     ArduinoOTA.handle();
-    if(counter++>5000){
-      counter = 0;
-      scanWifi();
-    }
+    scanWifi();
     delay(1);
 }
