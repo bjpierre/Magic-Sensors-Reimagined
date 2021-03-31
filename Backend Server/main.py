@@ -2,6 +2,10 @@ import os
 import sys
 import psutil
 
+from server import *
+
+#Server IP - 10.29.163.209
+
 version = "1.0"
 
 def generate_pid_file():
@@ -14,10 +18,10 @@ def generate_pid_file():
         f.write(pid)
 
 if __name__ == "__main__":
+	
+	print(f"App launch - Verions: {version}")
 
-    print(f"App launch - Verions: {version}")
-    
-    generate_pid_file()
+	generate_pid_file()
 
-    while(True):
-        pass
+	while(True):
+		pass
