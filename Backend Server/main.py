@@ -2,6 +2,8 @@ import os
 import sys
 import psutil
 
+version = "1.0"
+
 def generate_pid_file():
     pid = str(os.getpid())
     pidfile = "/tmp/server_daemon.pid"
@@ -13,7 +15,7 @@ def generate_pid_file():
 
 if __name__ == "__main__":
 
-    print("App launch")
+    print(f"App launch - Verions: {version}")
     
     generate_pid_file()
 
