@@ -3,7 +3,7 @@ import logging
 import os
 
 date = datetime.now()
-FILENAME = f"/var/logs/sd2021_server/{date.month}-{date.day}-{date.year}.log"
+FILENAME = f"/var/log/sd2021_server/{date.month}-{date.day}-{date.year}.log"
 FORMAT = "%(asctime)s -%(message)s"
 
 if(not os.path.isfile(FILENAME)):
