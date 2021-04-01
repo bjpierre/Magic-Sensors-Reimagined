@@ -13,4 +13,4 @@ def generate_pydocs():
 	
 
 if __name__ == "__main__":
-	
+	generate_pydocs()
