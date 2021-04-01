@@ -1,9 +1,15 @@
 from datetime import datetime
 import logging
+import os
 
+FILENAME = "/var/logs/sd2021_server/{date.month}-{date.day}-{date.year}.log"
 FORMAT = "%(asctime)s -%(message)s"
+
+if(not os.path.isfile(FILENAME)):
+	os.system(f"touch {FILENAME}")
+
 logging.basicConfig(
-	filename= "/var/logs/sd2021_server/{date.month}-{date.day}-{date.year}.log",
+	filename= FILENAME,
 	level=logging.INFO,
 	format=FORMAT
 )
