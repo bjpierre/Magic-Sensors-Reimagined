@@ -14,7 +14,7 @@ def check_main_pid():
                p.kill()
     os.chdir(file_path)
     os.system("git pull origin master")
-    os.system(f"python3 {file_name}")
+    os.system(f"python3 {file_name} &")
 
 if __name__ == "__main__":
     check_main_pid()

@@ -16,7 +16,7 @@ def check_main_pid():
     else:
         os.chdir(file_path)
         os.system("activate")
-        os.system(f"python3 {file_name}")
+        os.system(f"python3 {file_name} &")
 
 
 if __name__ == "__main__":
