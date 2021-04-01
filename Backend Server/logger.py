@@ -15,26 +15,26 @@ logging.basicConfig(
 	format=FORMAT
 )
 
-def info(msg: str, *args=None, **kwargs=None) -> None:
+def info(msg: str) -> None:
 	""" Wrapper function for logging.info
 
 	Args:
 		msg (str): Message which will be logged in the log file.
 	"""
-	logging.info(msg, args, kwargs)
+	logging.info(msg)
 
-def warning(msg: str, *args=None, **kwargs=None) -> None:
+def warning(msg: str) -> None:
 	""" Wrapper function for logging.warning
 
 	Args:
 		msg (str): Message which will be logged in the log file.
 	"""
-	logging.warning(msg, *args, **kwargs)
+	logging.warning(msg)
 
-def error(msg: str, *args=None, **kwargs=None) -> None:
+def error(msg: str) -> None:
 	""" Wrapper function for logging.warning
 
 	Args:
 		msg (str): Message which will be logged in the log file.
 	"""
-	logging.error(msg, *args, **kwargs)
+	logging.error(msg)
