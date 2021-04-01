@@ -15,7 +15,7 @@ logging.basicConfig(
 	format=FORMAT
 )
 
-def info(msg: str, *args, **kwargs) -> None:
+def info(msg: str, *args=None, **kwargs=None) -> None:
 	""" Wrapper function for logging.info
 
 	Args:
@@ -23,7 +23,7 @@ def info(msg: str, *args, **kwargs) -> None:
 	"""
 	logging.info(msg, args, kwargs)
 
-def warning(msg: str, *args, **kwargs) -> None:
+def warning(msg: str, *args=None, **kwargs=None) -> None:
 	""" Wrapper function for logging.warning
 
 	Args:
@@ -31,7 +31,7 @@ def warning(msg: str, *args, **kwargs) -> None:
 	"""
 	logging.warning(msg, *args, **kwargs)
 
-def error(msg: str, *args, **kwargs) -> None:
+def error(msg: str, *args=None, **kwargs=None) -> None:
 	""" Wrapper function for logging.warning
 
 	Args:
