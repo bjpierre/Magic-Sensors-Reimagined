@@ -23,6 +23,7 @@ def check_main_pid() -> None:
 	os.system("git pull origin master")
 	logger.info("Relaunching Backend Server")
 	os.system(f"python3 {file_name} &")
+	os.system("python3 generate_pydocs.py")
 
 
 if __name__ == "__main__":
