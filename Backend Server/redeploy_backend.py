@@ -24,5 +24,6 @@ def check_main_pid() -> None:
 	logger.info("Relaunching Backend Server")
 	os.system(f"python3 {file_name} &")
 
+
 if __name__ == "__main__":
     check_main_pid()
