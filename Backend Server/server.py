@@ -6,6 +6,10 @@ import os
 
 app = Flask(__name__)
 
+#Server IP - 10.29.163.209
+
+version = "1.1"
+
 @app.route("/debug/post/echo", methods=['POST'])
 def _post_echo():
 	""" This is a debug function which allows for a quick and simple 
@@ -42,6 +46,17 @@ def _get_time():
 	"""
 	d = datetime.now()
 	return f"{d.month}-{d.day}-{d.year} {d.hour}:{d.minute}:{d.second}"
+
+@app.route("/debug/get/version", methods=['GET'])
+def _get_version():
+	""" This is a debug function that allows an end user to get the 
+	current version of the backend server. The version number should 
+	change with each iteration of code to prevent the use of stale code.
+
+	Returns:
+		str: Server version
+	"""
+	return version
 
 # Will launch the backend server on it's own thread
 threading.Thread(target=app.run, kwargs={"host": "0.0.0.0", "port": 8118,
