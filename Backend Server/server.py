@@ -2,10 +2,14 @@ from flask import Flask, request
 from datetime import datetime
 import json
 import threading
-import os
+import os, sys
 import logger
 
-app = Flask(__name__)
+try:
+	app = Flask(__name__)
+except Exception as e:
+	logger.error("Server already running - Note ignore if this was invoked by"
+				 "pydoc.")
 
 #Server IP - 10.29.163.209
 
@@ -64,7 +68,10 @@ def _get_version() -> str:
 	logger.info(f"{request.remote_addr} - Invoked get/version")
 	return version
 
-# Will launch the backend server on it's own thread
-logger.info(f"Launching Flask server running version {version}")
-threading.Thread(target=app.run, kwargs={"host": "0.0.0.0", "port": 8118,
-				 						 "threaded": True}).start()
+def launch_server():
+	""" This function will launch a server on it's own thread.
+	Default configuration is to launch on port 8118.
+	"""
+	logger.info(f"Launching Flask server running version {version}")
+	threading.Thread(target=app.run, kwargs={"host": "0.0.0.0", "port": 8118,
+											"threaded": True}).start()

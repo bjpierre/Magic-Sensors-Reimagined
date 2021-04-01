@@ -13,11 +13,13 @@ def generate_pid_file() -> None:
 	pidfile = "/tmp/server_daemon.pid"
 
 	logger.info(f"Launched Server with proc {pid}")
+	server.launch_server()
 
 	with open(pidfile, "w") as f:
 		f.write(pid)
 
 if __name__ == "__main__":
+	logger.init_logger()
 	logger.info(f"App launch - Verion: {server.version}")
 
 	generate_pid_file()

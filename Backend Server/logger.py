@@ -2,18 +2,22 @@ from datetime import datetime
 import logging
 import os
 
-date = datetime.now()
-FILENAME = f"/var/log/sd2021_server/{date.month}-{date.day}-{date.year}.log"
-FORMAT = "%(asctime)s - %(message)s"
+def init_logger():
+	""" This function will initalize our logger to write a log file to 
+	/var/log/sd2021/ for ease of debugging later on.
+	"""
+	date = datetime.now()
+	FILENAME = f"/var/log/sd2021_server/{date.month}-{date.day}-{date.year}.log"
+	FORMAT = "%(asctime)s - %(message)s"
 
-if(not os.path.isfile(FILENAME)):
-	os.system(f"touch {FILENAME}")
+	if(not os.path.isfile(FILENAME)):
+		os.system(f"touch {FILENAME}")
 
-logging.basicConfig(
-	filename= FILENAME,
-	level=logging.INFO,
-	format=FORMAT
-)
+	logging.basicConfig(
+		filename= FILENAME,
+		level=logging.INFO,
+		format=FORMAT
+	)
 
 def info(msg: str) -> None:
 	""" Wrapper function for logging.info
