@@ -10,7 +10,7 @@ def generate_pydocs():
 	
 	pyfiles = [f for f in os.listdir(".") if ".py" in f]
 	for f in pyfiles:
-		os.system(f"python3 -m pydoc {f} -w {f[:-3]}")
+		os.system(f"python3 -m pydoc {f[:-3]} -w {f[:-3]}")
 	
 	os.system(f"mv *.html /var/www/html/")
 	
