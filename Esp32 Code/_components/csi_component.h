@@ -6,8 +6,8 @@
 
 char *project_type;
 
-#define CSI_RAW 1
-#define RSSI 0
+#define CSI_RAW 0
+#define RSSI 1
 #define CSI_AMPLITUDE 0
 #define CSI_PHASE 0
 
@@ -30,7 +30,7 @@ void _wifi_csi_cb(void *ctx, wifi_csi_info_t *data) {
 
     int8_t *my_ptr;
 #if RSSI
-	outprintf("[%d]\n", d.rx_ctrl.rssi)
+	outprintf("[%d]\n", d.rx_ctrl.rssi);
 #endif
 #if CSI_RAW
     my_ptr = data->buf;
