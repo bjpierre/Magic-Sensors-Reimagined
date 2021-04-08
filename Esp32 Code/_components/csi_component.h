@@ -6,9 +6,9 @@
 
 char *project_type;
 
-#define CSI_RAW 0
+#define CSI_RAW 1
 #define CSI_AMPLITUDE 0
-#define CSI_PHASE 1
+#define CSI_PHASE 0
 
 #define CSI_TYPE CSI_RAW
 
@@ -30,11 +30,11 @@ void _wifi_csi_cb(void *ctx, wifi_csi_info_t *data) {
     int8_t *my_ptr;
 
 #if CSI_RAW
-     outprintf("%d,[", data->len);
-     my_ptr = data->buf;
-
-    for (int i = 0; i < 128; i++) {
-        outprintf("%d ", my_ptr[i]);
+    
+    my_ptr = data->buf;
+    outprintf("%d,[%d", data->len, my_ptr[0]);
+    for (int i = 1; i < 128; i++) {
+        outprintf(",%d", my_ptr[i]);
     }
     outprintf("]\n\n");
 #endif

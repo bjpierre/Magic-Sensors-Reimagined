@@ -56,7 +56,6 @@ void socket_transmitter_sta_loop(bool (*is_wifi_connected)()) {
 
             if (sendto(socket_fd, &data, strlen(data), 0, (const struct sockaddr *) &caddr, sizeof(caddr)) !=
                 strlen(data)) {
-                    printf("Socket Internal Loop");
                 vTaskDelay(1);
                 continue;
             }
