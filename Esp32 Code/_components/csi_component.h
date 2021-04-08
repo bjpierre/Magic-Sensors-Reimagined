@@ -7,6 +7,7 @@
 char *project_type;
 
 #define CSI_RAW 1
+#define RSSI 0
 #define CSI_AMPLITUDE 0
 #define CSI_PHASE 0
 
@@ -28,12 +29,16 @@ void _wifi_csi_cb(void *ctx, wifi_csi_info_t *data) {
     // free(resp);
 
     int8_t *my_ptr;
-
+#if RSSI
+	outprintf("[%d]\n", d.rx_ctrl.rssi)
+#endif
 #if CSI_RAW
-    
     my_ptr = data->buf;
-    outprintf("%d,[%d", data->len, my_ptr[0]);
-    for (int i = 1; i < 128; i++) {
+	//start at 12(6*2) as the first 5 subcarries are useless
+    outprintf("%d,[%d", data->len, my_ptr[0+12]);
+	
+	//start at 11 as we printed 10, end at 118(128-(5*2)) as the last 5 subarriers are also useless in our setup
+    for (int i = 0+13; i < 128-10; i++) {
         outprintf(",%d", my_ptr[i]);
     }
     outprintf("]\n\n");

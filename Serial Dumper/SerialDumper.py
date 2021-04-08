@@ -13,7 +13,7 @@ def signal_handler(sig, frame):
     """catches teh ctrl c singal, closes and formats dump.txt"""
     ser.close()
     file.close()
-    print("Closed streams!")
+    print("\nClosed streams!")
     osCommandString = "notepad.exe dump.txt"
     os.system(osCommandString)
     sys.exit(0)
@@ -38,14 +38,15 @@ while True:
 
     
 count = 0
-print("\nWriting! hit ctrl+c to end, but only once, Please\nSometimes it takes a few seconds to exit!")
+print("\nWriting! Press ctrl+c to end, but only once, Please\nSometimes it takes a few seconds to exit!")
 while True:
     
     data = ser.readline(500)
     conv = str(data)
     if(conv[2:5] == "384" or conv[2:5] == "128"):
         count +=1
-        print("Matched Data :" + str(count))
+        if(count%20 == 0):
+            print("Matched Data points:" + str(count))
         file.write(str(data)[6:-5])
         file.write("\n")
     else:
