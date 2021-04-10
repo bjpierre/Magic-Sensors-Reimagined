@@ -1,10 +1,19 @@
+"""
+	File: redeploy_backend.py
+	
+	Function: This file acts as a means to automatically update the backend server
+	to the lastest version on git, while also relaunching the application. This 
+	function is invoked by server_daemon.py. This function is also responsible for
+	invoking generate_pydocs.py after the code is updated.
+"""
+
 import os
 import psutil
 import time
 import logger
 
 __author__ = "Ryan Lanciloti"
-__credits__ =["Ryan Lanciloti"]
+__credits__ = ["Ryan Lanciloti"]
 __version__ = "1.5.0"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]

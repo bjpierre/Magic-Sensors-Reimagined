@@ -1,10 +1,69 @@
+""" 
+	File: tf_model_handler.py
+
+	Function: This file is meant to act as a means for the server to 
+	interacts with our deep learning model. While it may seem like there
+	are two thread, the function creates the second thread is invoked by
+	a function running on the server's main thread. In future iterations,
+	I may add a second thread to do training on, however given that we 
+	won't want to interrupt training after it has begun, blocking the 
+	handler thread may be the best course of action.
+
+	--------------------------------------------------------------------
+	General Training Flow (Assuming inital training or retraining)
+
+	1. End user checks the current state of the of the model as specified
+	by the API. NOTE: Only if the current state is MODEL_DOESNT_EXIST or
+	FINISHED_TRAINING should the user continue to step 2.
+
+	2. End user starts training by making the specified API call. Invoking
+	this function will change the model state to START_TRAINING.
+
+	3. Once moved to START_TRAINING, the handler thread will initialize
+	all necessary resources required for training. Once the data is 
+	preprocessed and ready to be trained with, the model state will 
+	change to TRAINING_IN_PROGRESS.
+
+	4. While in TRAINING_IN_PROGRESS, the end user will not be able to 
+	request a copy of the deep learning model. During this state, the
+	handler thread will be blocked until training has completed. This
+	is to prevent potential corruption of the model due to partial
+	training. Following training completion, the state will be moved
+	to FINISHED_TRAINING.
+
+	5. Once in FINISHED_TRAINING, it would be appropriate for the end
+	user to request a copy of the new model. (Potential feature: API 
+	call that will return a hash of the current model so the end user
+	can check to see if their local model is up-to-date). The handler
+	thread will remain in the FINISHED_TRAINING state until it is 
+	requested by the end user to train again.
+	--------------------------------------------------------------------
+	
+	Recommenend implementation on the pi:
+
+	1. Create a thread specifically for handling training user the FSM
+	model as used here.
+
+	2. In the training thread, invoke the training API call once the
+	training data set has been gathered.
+
+	3. From this point, do a time.sleep(30). After the thread wakes
+	up, query the API for the current state of the model. If it's still
+	in TRAINING_IN_PROGRESS, go back to sleep for 30 seconds. Repeat 
+	until the query returns FINISHED_TRAINING.
+
+	4. Once the model has finished training, make a request for the 
+	newly trained model. Overwrite the currently implemented model
+	with the new model.
+"""
+
 import time
 import random
 from enum import Enum
 from threading import Thread
 
 __author__ = "Ryan Lanciloti"
-__credits__ =["Ryan Lanciloti"]
+__credits__ = ["Ryan Lanciloti"]
 __version__ = "1.0.0"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
@@ -88,4 +147,7 @@ def init_tf_handler():
 	TRAINING_TIME = 0
 	TRAINING_DATA = []
 	DATA_TYPE = "NOT_SET"
+
+	state_machine = Thread(target=_thread_training_handle, args=())
+	state_machine.start()
 	

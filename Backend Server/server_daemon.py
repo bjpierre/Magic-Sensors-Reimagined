@@ -1,8 +1,22 @@
+"""
+	File: server_daemon.py
+	
+	Function: This file acts as a watchdog process that checks to see if the server
+	is still running or if it died. It's assumed that if the server proc died, that
+	there was a bad code change pushed. Because of this assumption, this file will
+	invoke redeploy_backend.py to ensure that if we relaunch the server, it's the 
+	most up-to-date version, as specified by github. 
+
+	This file is called every 5 minutes by a cronjob on the back-end. That means that
+	the server shouldn't be down for more than 5 minutes at any given point if the 
+	code which exists in git is functional.
+"""
+
 import os
 import psutil
 
 __author__ = "Ryan Lanciloti"
-__credits__ =["Ryan Lanciloti"]
+__credits__ = ["Ryan Lanciloti"]
 __version__ = "1.5.0"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]

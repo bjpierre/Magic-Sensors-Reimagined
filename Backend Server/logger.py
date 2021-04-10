@@ -1,9 +1,17 @@
+"""
+	File: logger.py
+	
+	Function: This file as a wrapper for the "logging" library in python.
+	Having this wrapper allows us to initialize the how we'd like the logger
+	to log events.
+"""
+
 from datetime import datetime
 import logging
 import os
 
 __author__ = "Ryan Lanciloti"
-__credits__ =["Ryan Lanciloti"]
+__credits__ = ["Ryan Lanciloti"]
 __version__ = "1.0.5"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]

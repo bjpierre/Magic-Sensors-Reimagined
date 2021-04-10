@@ -1,3 +1,11 @@
+"""
+	File: server.py
+	
+	Function: This file handles all things API related in our backend. It's 
+	job is to handle GET and PULL requests to the specified URLS, and provide
+	the requested information or modify the current server state as specified
+	by the request.
+"""
 import json
 import threading
 import os, sys
@@ -7,7 +15,7 @@ from datetime import datetime
 import tf_model_handler
 
 __author__ = "Ryan Lanciloti"
-__credits__ =["Ryan Lanciloti"]
+__credits__ = ["Ryan Lanciloti"]
 __version__ = "2.0.0"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]

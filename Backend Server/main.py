@@ -1,3 +1,11 @@
+"""
+	File: main.py
+	
+	Function: This file acts as an entry point into the backend ecosystem.
+	This file is responsible for initializing all necessary resources for
+	the backend to run.
+"""
+
 import os
 import sys
 import psutil
@@ -6,7 +14,7 @@ import logger
 import tf_model_handler
 
 __author__ = "Ryan Lanciloti"
-__credits__ =["Ryan Lanciloti"]
+__credits__ = ["Ryan Lanciloti"]
 __version__ = "1.1.0"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
