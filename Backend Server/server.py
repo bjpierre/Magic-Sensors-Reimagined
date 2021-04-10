@@ -16,7 +16,7 @@ import tf_model_handler
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
-__version__ = "2.0.0"
+__version__ = "2.1.3"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
 __status__ = "Development"
@@ -71,7 +71,7 @@ def _debug_get_time() -> str:
 	return f"{d.month}-{d.day}-{d.year} {d.hour}:{d.minute}:{d.second}"
 
 @app.route("/debug/get/version/server", methods=['GET'])
-def _debug_get_version() -> str:
+def _debug_get_version_server() -> str:
 	""" This is a debug function that allows an end user to get the 
 	current version of the backend server. The version number should 
 	change with each iteration of code to prevent the use of stale code.
@@ -83,7 +83,7 @@ def _debug_get_version() -> str:
 	return __version__
 
 @app.route("/debug/get/version/tf_model_handler", methods=['GET'])
-def _debug_get_version() -> str:
+def _debug_get_version_tf_model_handler() -> str:
 	""" This is a debug function that allows an end user to get the 
 	current version of the tensorflow model handler. The version number 
 	should change with each iteration of code to prevent the use of 
@@ -108,7 +108,7 @@ def _training_post_train() -> (str, int):
 		DATA: List[DOOR_ANGLE][POINTS]
 
 	if TYPE = CSI
-		DATA = List[SUB_CARRIER][DATA_TYPE][DOOR_ANGLE][POINTS]
+		DATA = List[DATA_TYPE][DOOR_ANGLE][SUB_CARRIER][POINTS]
 	------------------------------------------------------------
 	
 	TYPE: This will either be 'RSSI' or 'CSI'.
@@ -152,31 +152,31 @@ def _training_post_train() -> (str, int):
 	"""
 
 	try:
-		body = json.loads(request.json())
+		body = request.json
 	except json.JSONDecodeError as e:
 		logger.error(f"{request.remote_addr} - {e}")
 		return ("Error, not valid JSON", 400)
 
-	if(not str(body['TYPE'])):
-		logger.error(f"{request.remote_addr} - {e}")
+	if('TYPE' not in body):
+		logger.error(f"{request.remote_addr} - No type provided")
 		return ("Error, no type provided", 401)
 
-	if(not body['DATA']):
-		logger.error(f"{request.remote_addr} - {e}")
+	if('DATA' not in body):
+		logger.error(f"{request.remote_addr} - No data provided")
 		return ("Error, no data provided", 402)
 
 	if(str(body['TYPE']) == "RSSI"):
 		tf_model_handler.DATA_TYPE = "RSSI"
 		tf_model_handler.TRAINING_DATA = body["DATA"]
-		tf_model_handler.STATE = tf_model_handler.MLStates.TRAINING_IN_PROGRESS
+		tf_model_handler.STATE = tf_model_handler.MLStates.START_TRAINING
 
 	elif(str(body['TYPE']) == "CSI"):
 		tf_model_handler.DATA_TYPE = "CSI"
 		tf_model_handler.TRAINING_DATA = body["DATA"]
-		tf_model_handler.STATE = tf_model_handler.MLStates.TRAINING_IN_PROGRESS
+		tf_model_handler.STATE = tf_model_handler.MLStates.START_TRAINING
 	
 	else:
-		logger.error(f"{request.remote_addr} - {e}")
+		logger.error(f"{request.remote_addr} - Data type doesn't exist")
 		return ("Error, data type specified doesn't exist", 403)
 
 	return ("Success", 200)
@@ -196,15 +196,15 @@ def _training_get_training_status() -> str:
 	return tf_model_handler.STATE.name
 
 @app.route("/training/get/training_time", methods=['GET'])
-def _training_get_training_status() -> float:
+def _training_get_training_time() -> str:
 	""" Once training has finished, we overwrite the training time
 	variable with the new training time. This can be used as a metric
 	in the app or on the front-end if desired.
 
 	Returns:
-		float: Total training time in seconds 
+		str: Total training time in seconds 
 	"""
-	return tf_model_handler.TRAINING_TIME
+	return str(tf_model_handler.TRAINING_TIME)
 
 
 def launch_server():
@@ -212,5 +212,5 @@ def launch_server():
 	Default configuration is to launch on port 8118.
 	"""
 	logger.info(f"Launching Flask server running version {__version__}")
-	threading.Thread(target=app.run, kwargs={"host": "0.0.0.0", "port": 8118,
+	threading.Thread(target=app.run, kwargs={"host": "0.0.0.0", "port": 20002,
 											"threaded": True}).start()

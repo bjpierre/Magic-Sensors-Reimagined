@@ -64,7 +64,7 @@ from threading import Thread
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
-__version__ = "1.0.0"
+__version__ = "1.0.9"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
 __status__ = "Development"
@@ -105,7 +105,7 @@ we can assume we've successfully trained the model.
 """
 
 STATE = MLStates.MODEL_DOESNT_EXIST
-TRAINING_TIME = 0
+TRAINING_TIME = 0.0
 TRAINING_DATA = []
 DATA_TYPE = "NOT_SET"
 
@@ -117,20 +117,21 @@ def _thread_training_handle():
 	global STATE
 	global TRAINING_TIME
 
-	tt_start = 0
+	tt_start = 0.0
 
 	while(True):
 		if STATE == MLStates.START_TRAINING:
 			tt_start = time.time()
-			TRAINING_TIME = 0
+			TRAINING_TIME = 0.0
 			STATE = MLStates.TRAINING_IN_PROGRESS
 		
 		if STATE == MLStates.TRAINING_IN_PROGRESS:
 			time.sleep(30 + random.randint(0, 15))
+			TRAINING_TIME = time.time() - tt_start
 			STATE = MLStates.FINISHED_TRAINING
 		
 		if STATE == MLStates.FINISHED_TRAINING:
-			TRAINING_TIME = time.time() - tt_start
+			pass
 
 
 def init_tf_handler():
@@ -144,7 +145,7 @@ def init_tf_handler():
 	global DATA_TYPE
 
 	STATE = MLStates.FINISHED_TRAINING
-	TRAINING_TIME = 0
+	TRAINING_TIME = 0.0
 	TRAINING_DATA = []
 	DATA_TYPE = "NOT_SET"
 
