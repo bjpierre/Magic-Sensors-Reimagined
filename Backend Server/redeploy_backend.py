@@ -3,6 +3,13 @@ import psutil
 import time
 import logger
 
+__author__ = "Ryan Lanciloti"
+__credits__ =["Ryan Lanciloti"]
+__version__ = "1.5.0"
+__maintainer__ = "Ryan Lanciloti"
+__email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
+__status__ = "Development"
+
 def check_main_pid() -> None:
 	""" This function will find attempt to take the current server process and
 	kill it. It will then pull the most up-to-date version of code from git if

@@ -2,6 +2,13 @@ from datetime import datetime
 import logging
 import os
 
+__author__ = "Ryan Lanciloti"
+__credits__ =["Ryan Lanciloti"]
+__version__ = "1.0.5"
+__maintainer__ = "Ryan Lanciloti"
+__email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
+__status__ = "Development"
+
 def init_logger():
 	""" This function will initalize our logger to write a log file to 
 	/var/log/sd2021/ for ease of debugging later on.

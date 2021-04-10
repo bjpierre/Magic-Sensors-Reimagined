@@ -1,6 +1,13 @@
 import os
 import pydoc
 
+__author__ = "Ryan Lanciloti"
+__credits__ =["Ryan Lanciloti"]
+__version__ = "1.0.5"
+__maintainer__ = "Ryan Lanciloti"
+__email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
+__status__ = "Development"
+
 def generate_pydocs():
 	""" This function will generate pydocs for all python files in the project.
 	It will then move the html files to the default apache2 directory.
