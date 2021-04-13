@@ -16,7 +16,7 @@ import tf_model_handler
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
-__version__ = "2.1.3"
+__version__ = "2.1.4"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
 __status__ = "Development"
@@ -31,14 +31,15 @@ except Exception as e:
 
 @app.route("/debug/post/echo", methods=['POST'])
 def _debug_post_echo() -> str:
+	
 	""" This is a debug function which allows for a quick and simple 
 	test of post functionality. If an end user want to make sure that
 	their post requests are getting read by the backend server, they
 	can make a post request with json that will get echoed back to 
 	them. 
 
-	Returns:
-		str: The json which will be echoed back to the end user
+	:return: The json which will be echoed back to the end user
+	:rtype: str
 	"""
 
 	logger.info(f"{request.remote_addr} - Invoked post/echo")
@@ -51,6 +52,7 @@ def _debug_post_redeploy() -> None:
 	call a script on the backend which will kill the server, pull from
 	GitHub, and relaunch the server once it's finished.
 	"""
+	
 	file_path = "/home/sd2021/gitRepo/Magic-Sensors-Reimagined/Backend Server"
 	file_name = "redeploy_backend.py"
 	os.chdir(file_path)
@@ -63,8 +65,8 @@ def _debug_get_time() -> str:
 	requests to the server. If this function is called, it will return
 	the current day and time as seen by the server.
 
-	Returns:
-		str: Current date time on the server
+	:return: Current date time on the server
+	:rtype: str
 	"""
 	d = datetime.now()
 	logger.info(f"{request.remote_addr} - Invoked get/time")
@@ -76,8 +78,8 @@ def _debug_get_version_server() -> str:
 	current version of the backend server. The version number should 
 	change with each iteration of code to prevent the use of stale code.
 
-	Returns:
-		str: Server version
+	:return: Server version
+	:rtype: str
 	"""
 	logger.info(f"{request.remote_addr} - Invoked debug/get/version/server")
 	return __version__
@@ -89,8 +91,8 @@ def _debug_get_version_tf_model_handler() -> str:
 	should change with each iteration of code to prevent the use of 
 	stale code.
 
-	Returns:
-		str: Tensorflow model handler version
+	:return: Server version
+	:rtype: str
 	"""
 	logger.info(f"{request.remote_addr} - Invoked debug/get/version/tf_model_handler")
 	return tf_model_handler.__version__
@@ -145,10 +147,10 @@ def _training_post_train() -> (str, int):
 			]
 		}
 
-	Returns:
-		Response: Status code letting the user know if the request was
-		valid or not. 200 if okay, 400 if the JSON body doesn't contain
-		the correct data.
+	:return: Response: Status code letting the user know if the request was
+	valid or not. 200 if okay, 400 if the JSON body doesn't contain
+	the correct data.
+	:rtype: tuple
 	"""
 
 	try:
@@ -189,9 +191,9 @@ def _training_get_training_status() -> str:
 	to FINISHED_TRAINING, the front-end server should take this as a sign
 	to pull the most up-to-date model from the backend.
 
-	Returns:
-		str: The current model training state. View tf_model_handler
-		docs for more information on the states available.
+	:return: The current model training state. View tf_model_handler
+	docs for more information on the states available.
+	:rtype: str
 	"""
 	return tf_model_handler.STATE.name
 
@@ -201,15 +203,15 @@ def _training_get_training_time() -> str:
 	variable with the new training time. This can be used as a metric
 	in the app or on the front-end if desired.
 
-	Returns:
-		str: Total training time in seconds 
+	:return: Total training time in seconds 
+	:rtype: str
 	"""
 	return str(tf_model_handler.TRAINING_TIME)
 
 
 def launch_server():
 	""" This function will launch a server on it's own thread.
-	Default configuration is to launch on port 8118.
+	Default configuration is to launch on port 20002.
 	"""
 	logger.info(f"Launching Flask server running version {__version__}")
 	threading.Thread(target=app.run, kwargs={"host": "0.0.0.0", "port": 20002,

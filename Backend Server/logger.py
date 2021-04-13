@@ -12,7 +12,7 @@ import os
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
-__version__ = "1.0.5"
+__version__ = "1.0.6"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
 __status__ = "Development"
@@ -37,23 +37,23 @@ def init_logger():
 def info(msg: str) -> None:
 	""" Wrapper function for logging.info
 
-	Args:
-		msg (str): Message which will be logged in the log file.
+	:param msg: Message which will be logged in the log file.
+	:type msg: str
 	"""
 	logging.info(msg)
 
 def warning(msg: str) -> None:
 	""" Wrapper function for logging.warning
 
-	Args:
-		msg (str): Message which will be logged in the log file.
+	:param msg: Message which will be logged in the log file.
+	:type msg: str
 	"""
 	logging.warning(msg)
 
 def error(msg: str) -> None:
-	""" Wrapper function for logging.warning
+	""" Wrapper function for logging.error
 
-	Args:
-		msg (str): Message which will be logged in the log file.
+	:param msg: Message which will be logged in the log file.
+	:type msg: str
 	"""
 	logging.error(msg)
