@@ -10,7 +10,7 @@ import json
 import threading
 import os, sys
 import logger
-from flask import Flask, request, Response, jsonify
+from flask import Flask, request, Response
 from datetime import datetime
 import tf_model_handler
 
@@ -106,7 +106,7 @@ def _debug_get_exists() -> (str, int):
 	:return: Simple feedback and a 200 status code
 	:rtype: (str, int)
 	"""
-	return jsonify(success=True)
+	return ("Success", 200)
 
 
 @app.route("/training/post/train", methods=['POST'])
