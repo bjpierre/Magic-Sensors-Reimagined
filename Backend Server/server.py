@@ -97,6 +97,17 @@ def _debug_get_version_tf_model_handler() -> str:
 	logger.info(f"{request.remote_addr} - Invoked debug/get/version/tf_model_handler")
 	return tf_model_handler.__version__
 
+@app.route("/debug/get/exists", methods=['GET'])
+def _debug_get_exists() -> (str, int):
+	""" This function is for the app to check if the backend server exists. If
+	the app makes this request, it can check to see if the server is answering
+	requests.
+
+	:return: Simple feedback and a 200 status code
+	:rtype: (str, int)
+	"""
+	return ("Success", 200)
+
 
 @app.route("/training/post/train", methods=['POST'])
 def _training_post_train() -> (str, int):
