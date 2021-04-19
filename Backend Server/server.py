@@ -183,7 +183,11 @@ def _server_post_keep_alive() -> (str, int):
 	global RPI_SERVERS_LOCK
 
 	try:
-		body = json.loads(request.json)
+		if(type(request.json) == str):
+			body = json.loads(request.json)
+		else:
+			body = request.json
+			
 	except json.JSONDecodeError as e:
 		logger.error(f"{request.remote_addr} - {e}")
 		return ("Error, not valid JSON", 400)
