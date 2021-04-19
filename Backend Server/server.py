@@ -17,7 +17,7 @@ import tf_model_handler
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
-__version__ = "3.1.5"
+__version__ = "3.1.10"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
 __status__ = "Development"
