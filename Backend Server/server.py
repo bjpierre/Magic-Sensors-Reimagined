@@ -25,7 +25,7 @@ __status__ = "Development"
 RPI_SERVERS = list()
 RPI_SERVERS_LOCK = threading.Lock()
 
-MAX_TIMEOUT = 15.0
+MAX_TIMEOUT = 30.0
 
 class RPIServer:
 	def __init__(self, ip_addr: str, name: str, id: str) -> None:
@@ -34,11 +34,11 @@ class RPIServer:
 		self.id = id
 		self.last_messaged = time.time()
 
-	def toString(self) -> str:
+	def toDict(self) -> str:
 		d = {"addr": self.ip_addr,
 			 "name": self.name,
 			 "id": self.id}
-		return json.dumps(d)
+		return d
 
 try:
 	app = Flask(__name__)
@@ -148,16 +148,17 @@ def _app_get_list_of_servers() -> str:
 
 	l = list()
 	for pi in RPI_SERVERS:
-		l.append(pi.toString())
+		l.append(pi.toDict())
 	RPI_SERVERS_LOCK.release()
 
 	return json.dumps(l)
 
 
 @app.route("/server/post/keep_alive", methods=['POST'])
-def _server_post_am_alive() -> None:
+def _server_post_keep_alive() -> (str, int):
 	""" This function should be invoked by the Raspberry PI front end
-	every 30 seconds to signal that it is still alive.
+	every 15 seconds to signal that it is still alive. If the pi doesn't
+	post within 30 seconds, it's considered dead.
 	
 	------------------------------------------------------------
 	NAME: This should be the name of the raspberry pi server that is 
@@ -173,6 +174,9 @@ def _server_post_am_alive() -> None:
 			"NAME" : "RPI 1",
 			"ID" : 10522 
 		}
+
+	:return: Simple feedback and a 200 status code
+	:rtype: (str, int)
 	"""
 	
 	global RPI_SERVERS
@@ -198,10 +202,11 @@ def _server_post_am_alive() -> None:
 		if(pi.id == body["ID"]):
 			pi.last_messaged = time.time()
 			RPI_SERVERS_LOCK.release()
-			return
+			return ("Success", 200)
 
-	RPI_SERVERS.append(RPIServer(request.ip_addr, body["NAME"], body["ID"]))
+	RPI_SERVERS.append(RPIServer(request.remote_addr, body["NAME"], body["ID"]))
 	RPI_SERVERS_LOCK.release()
+	return ("Success", 200)
 
 
 @app.route("/training/post/train", methods=['POST'])
@@ -320,13 +325,15 @@ def _thread_server_manager():
 	global RPI_SERVERS_LOCK
 	global MAX_TIMEOUT
 
-	RPI_SERVERS_LOCK.acquire()
+	while(True):
+		RPI_SERVERS_LOCK.acquire()
 
-	for pi in RPI_SERVERS:
-		if(time.time() - pi.last_messaged > MAX_TIMEOUT):
-			RPI_SERVERS.pop(pi)
+		for pi in RPI_SERVERS:
+			if(time.time() - pi.last_messaged > MAX_TIMEOUT):
+				RPI_SERVERS.remove(pi)
 
-	RPI_SERVERS_LOCK.release()
+		RPI_SERVERS_LOCK.release()
+		time.sleep(0.1)
 
 
 def launch_server():
@@ -336,3 +343,4 @@ def launch_server():
 	logger.info(f"Launching Flask server running version {__version__}")
 	threading.Thread(target=app.run, kwargs={"host": "0.0.0.0", "port": 20002,
 											"threaded": True}).start()
+	threading.Thread(target=_thread_server_manager, args=()).start()
