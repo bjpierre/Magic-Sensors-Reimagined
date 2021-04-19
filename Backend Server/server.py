@@ -11,13 +11,13 @@ import threading
 import os, sys
 import logger
 import time
-from flask import Flask, request, Response
+from flask import Flask, request, Responses
 from datetime import datetime
 import tf_model_handler
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
-__version__ = "3.1.10"
+__version__ = "3.2.0"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
 __status__ = "Development"
@@ -187,7 +187,7 @@ def _server_post_keep_alive() -> (str, int):
 			body = json.loads(request.json)
 		else:
 			body = request.json
-			
+
 	except json.JSONDecodeError as e:
 		logger.error(f"{request.remote_addr} - {e}")
 		return ("Error, not valid JSON", 400)
