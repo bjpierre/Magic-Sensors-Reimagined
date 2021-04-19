@@ -11,7 +11,7 @@ import threading
 import os, sys
 import logger
 import time
-from flask import Flask, request, Responses
+from flask import Flask, request, Response
 from datetime import datetime
 import tf_model_handler
 
