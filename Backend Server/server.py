@@ -10,16 +10,35 @@ import json
 import threading
 import os, sys
 import logger
+import time
 from flask import Flask, request, Response
 from datetime import datetime
 import tf_model_handler
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
-__version__ = "2.1.5"
+__version__ = "3.0.0"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
 __status__ = "Development"
+
+RPI_SERVERS = list()
+RPI_SERVERS_LOCK = threading.Lock()
+
+MAX_TIMEOUT = 15.0
+
+class RPIServer:
+	def __init__(self, ip_addr: str, name: str, id: str) -> None:
+		self.ip_addr = ip_addr
+		self.name = name
+		self.id = id
+		self.last_messaged = time.time()
+
+	def toString(self) -> str:
+		d = {"addr": self.ip_addr,
+			 "name": self.name,
+			 "id": self.id}
+		return json.dumps(d)
 
 try:
 	app = Flask(__name__)
@@ -45,6 +64,7 @@ def _debug_post_echo() -> str:
 	logger.info(f"{request.remote_addr} - Invoked post/echo")
 	return request.json
 
+
 @app.route("/debug/post/redeploy", methods=['POST'])
 def _debug_post_redeploy() -> None:
 	""" This is a debug function which will allow for an end user to
@@ -59,6 +79,7 @@ def _debug_post_redeploy() -> None:
 	logger.info(f"{request.remote_addr} - Invoked post/redeploy")
 	os.system(f"python3 {file_name}")
 
+
 @app.route("/debug/get/time", methods=['GET'])
 def _debug_get_time() -> str:
 	""" This is a debug function that allows an end user to test GET
@@ -72,6 +93,7 @@ def _debug_get_time() -> str:
 	logger.info(f"{request.remote_addr} - Invoked get/time")
 	return f"{d.month}-{d.day}-{d.year} {d.hour}:{d.minute}:{d.second}"
 
+
 @app.route("/debug/get/version/server", methods=['GET'])
 def _debug_get_version_server() -> str:
 	""" This is a debug function that allows an end user to get the 
@@ -83,6 +105,7 @@ def _debug_get_version_server() -> str:
 	"""
 	logger.info(f"{request.remote_addr} - Invoked debug/get/version/server")
 	return __version__
+
 
 @app.route("/debug/get/version/tf_model_handler", methods=['GET'])
 def _debug_get_version_tf_model_handler() -> str:
@@ -97,6 +120,7 @@ def _debug_get_version_tf_model_handler() -> str:
 	logger.info(f"{request.remote_addr} - Invoked debug/get/version/tf_model_handler")
 	return tf_model_handler.__version__
 
+
 @app.route("/debug/get/exists", methods=['GET'])
 def _debug_get_exists() -> (str, int):
 	""" This function is for the app to check if the backend server exists. If
@@ -107,6 +131,77 @@ def _debug_get_exists() -> (str, int):
 	:rtype: (str, int)
 	"""
 	return ("Success", 200)
+
+
+@app.route("/app/get/list_of_servers", methods=['GET'])
+def _app_get_list_of_servers() -> str:
+	""" Returns a list of all servers that have messaged the backend server
+	within the past 15 seconds.
+
+	:return: String list of all servers currently connected to backend
+	:rtype: str
+	"""
+	global RPI_SERVERS
+	global RPI_SERVERS_LOCK
+
+	RPI_SERVERS_LOCK.acquire()
+
+	l = list()
+	for pi in RPI_SERVERS:
+		l.append(pi.toString())
+	RPI_SERVERS_LOCK.release()
+
+	return l
+
+
+@app.route("/server/post/am_alive", methods=['POST'])
+def _server_post_am_alive() -> None:
+	""" This function should be invoked by the Raspberry PI front end
+	every 30 seconds to signal that it is still alive.
+	
+	------------------------------------------------------------
+	NAME: This should be the name of the raspberry pi server that is 
+	connected to the ESP32 reciever. This value does not need to be
+	unique. This should be a string.
+
+	ID: This should be a randomly generated, positive integer value 
+	that is between 0 and 32,767. This could be made static but should
+	be unique for every raspberry pi.
+	
+	EXAMPLE: 
+		{
+			"NAME" : "RPI 1",
+			"ID" : 10522 
+		}
+	"""
+	
+	global RPI_SERVERS
+	global RPI_SERVERS_LOCK
+
+	try:
+		body = request.json
+	except json.JSONDecodeError as e:
+		logger.error(f"{request.remote_addr} - {e}")
+		return ("Error, not valid JSON", 400)
+
+	if('NAME' not in body):
+		logger.error(f"{request.remote_addr} - Name not provided")
+		return ("Error, no name provided", 401)
+
+	if('ID' not in body):
+		logger.error(f"{request.remote_addr} - ID not provided")
+		return ("Error, no id provided", 402)
+
+	RPI_SERVERS_LOCK.acquire()
+
+	for pi in RPI_SERVERS:
+		if(pi.id == body["ID"]):
+			pi.last_messaged = time.time()
+			RPI_SERVERS_LOCK.release()
+			return
+
+	RPI_SERVERS.append(RPIServer(request.ip_addr, body["NAME"], body["ID"]))
+	RPI_SERVERS_LOCK.release()
 
 
 @app.route("/training/post/train", methods=['POST'])
@@ -218,6 +313,20 @@ def _training_get_training_time() -> str:
 	:rtype: str
 	"""
 	return str(tf_model_handler.TRAINING_TIME)
+
+
+def _thread_server_manager():
+	global RPI_SERVERS
+	global RPI_SERVERS_LOCK
+	global MAX_TIMEOUT
+
+	RPI_SERVERS_LOCK.acquire()
+
+	for pi in RPI_SERVERS:
+		if(time.time() - pi.last_messaged > MAX_TIMEOUT):
+			RPI_SERVERS.pop(pi)
+
+	RPI_SERVERS_LOCK.release()
 
 
 def launch_server():
