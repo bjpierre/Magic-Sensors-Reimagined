@@ -151,7 +151,7 @@ def _app_get_list_of_servers() -> str:
 		l.append(pi.toString())
 	RPI_SERVERS_LOCK.release()
 
-	return l
+	return json.dumps(l)
 
 
 @app.route("/server/post/am_alive", methods=['POST'])
