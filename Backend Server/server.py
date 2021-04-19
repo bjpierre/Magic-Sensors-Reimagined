@@ -28,7 +28,7 @@ RPI_SERVERS_LOCK = threading.Lock()
 MAX_TIMEOUT = 30.0
 
 class RPIServer:
-	def __init__(self, ip_addr: str, name: str, id: str) -> None:
+	def __init__(self, ip_addr: str, name: str, id: int) -> None:
 		self.ip_addr = ip_addr
 		self.name = name
 		self.id = id
@@ -183,7 +183,7 @@ def _server_post_keep_alive() -> (str, int):
 	global RPI_SERVERS_LOCK
 
 	try:
-		body = request.json
+		body = json.loads(request.json)
 	except json.JSONDecodeError as e:
 		logger.error(f"{request.remote_addr} - {e}")
 		return ("Error, not valid JSON", 400)
@@ -198,14 +198,18 @@ def _server_post_keep_alive() -> (str, int):
 
 	RPI_SERVERS_LOCK.acquire()
 
-	for pi in RPI_SERVERS:
-		if(pi.id == body["ID"]):
-			pi.last_messaged = time.time()
-			RPI_SERVERS_LOCK.release()
-			return ("Success", 200)
-
-	RPI_SERVERS.append(RPIServer(request.remote_addr, body["NAME"], body["ID"]))
-	RPI_SERVERS_LOCK.release()
+	try:
+		for pi in RPI_SERVERS:
+			if(pi.id == body["ID"]):
+				pi.last_messaged = time.time()
+				RPI_SERVERS_LOCK.release()
+				return ("Success", 200)
+		
+		RPI_SERVERS.append(RPIServer(request.remote_addr, body["NAME"], body["ID"]))
+		RPI_SERVERS_LOCK.release()
+	except Exception as e:
+		print(f"Exception: {e}")
+		RPI_SERVERS_LOCK.release()
 	return ("Success", 200)
 
 
