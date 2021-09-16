@@ -12,7 +12,7 @@ import os
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
-__version__ = "1.0.7"
+__version__ = "1.0.8"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
 __status__ = "Development"
@@ -36,13 +36,15 @@ def init_logger():
 		format=FORMAT
 	)
 
+
 def info(msg: str) -> None:
 	""" Wrapper function for logging.info
 
 	:param msg: Message which will be logged in the log file.
 	:type msg: str
 	"""
-	logging.info(msg) if LOGGING_ENABLED
+	if LOGGING_ENABLED: logging.info(msg)
+
 
 def warning(msg: str) -> None:
 	""" Wrapper function for logging.warning
@@ -50,7 +52,8 @@ def warning(msg: str) -> None:
 	:param msg: Message which will be logged in the log file.
 	:type msg: str
 	"""
-	logging.warning(msg) if LOGGING_ENABLED
+	if LOGGING_ENABLED: logging.warning(msg)
+
 
 def error(msg: str) -> None:
 	""" Wrapper function for logging.error
@@ -58,4 +61,4 @@ def error(msg: str) -> None:
 	:param msg: Message which will be logged in the log file.
 	:type msg: str
 	"""
-	logging.error(msg) if LOGGING_ENABLED
+	if LOGGING_ENABLED: logging.error(msg)
