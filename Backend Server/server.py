@@ -17,7 +17,7 @@ import tf_model_handler
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
-__version__ = "3.2.0"
+__version__ = "3.2.1"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
 __status__ = "Development"
@@ -80,6 +80,37 @@ def _debug_post_redeploy() -> None:
 	os.system(f"python3 {file_name}")
 
 
+@app.route("/debug/post/enable_logging", methods=['POST'])
+def _debug_post_enable_logging() -> None:
+	""" This is a debug function which will allow for an end user to
+	enabled or disable logging on the backend. This will help if there's a lot
+	of requests as the logging file won't grow super fast.
+	"""
+
+	try:
+		if(type(request.json) == str):
+			body = json.loads(request.json)
+		else:
+			body = request.json
+
+	except json.JSONDecodeError as e:
+		logger.error(f"{request.remote_addr} - {e}")
+		return ("Error, not valid JSON", 400)
+
+	keys = body.keys()
+
+	if('ENABLED' not in keys):
+		logger.error(f"{request.remote_addr} - ENABLED not provided")
+		return ("Error, no ENABLED provided", 401)
+
+	if(body["ENABLED"] != "True" && body["ENABLED"] != "False"):
+		logger.error(f"{request.remote_addr} - ENABLED key does not have a"
+					 f" valid value")
+		return ("ENABLED not a valid value", 401)
+
+	logger.LOGGING_ENABLED = True if body["key"] == "True" else False
+
+
 @app.route("/debug/get/time", methods=['GET'])
 def _debug_get_time() -> str:
 	""" This is a debug function that allows an end user to test GET
@@ -105,6 +136,19 @@ def _debug_get_version_server() -> str:
 	"""
 	logger.info(f"{request.remote_addr} - Invoked debug/get/version/server")
 	return __version__
+
+
+@app.route("/debug/get/version/tensorflow", methods=['GET'])
+def _debug_get_version_tensorflow() -> str:
+	""" This is a debug function that allows an end user to get the 
+	current version of tensorflow running on backend server. This is mainly
+	used to verify that tensorflow is installed on the server.
+
+	:return: Tensorflow version
+	:rtype: str
+	"""
+	logger.info(f"{request.remote_addr} - Invoked debug/get/version/tensorflow")
+	return tf.version.VERSION
 
 
 @app.route("/debug/get/version/tf_model_handler", methods=['GET'])
@@ -192,11 +236,13 @@ def _server_post_keep_alive() -> (str, int):
 		logger.error(f"{request.remote_addr} - {e}")
 		return ("Error, not valid JSON", 400)
 
-	if('NAME' not in body):
+	keys = body.keys()
+
+	if('NAME' not in keys):
 		logger.error(f"{request.remote_addr} - Name not provided")
 		return ("Error, no name provided", 401)
 
-	if('ID' not in body):
+	if('ID' not in keys):
 		logger.error(f"{request.remote_addr} - ID not provided")
 		return ("Error, no id provided", 402)
 
@@ -278,11 +324,13 @@ def _training_post_train() -> (str, int):
 		logger.error(f"{request.remote_addr} - {e}")
 		return ("Error, not valid JSON", 400)
 
-	if('TYPE' not in body):
+	keys = body.keys()
+
+	if('TYPE' not in keys):
 		logger.error(f"{request.remote_addr} - No type provided")
 		return ("Error, no type provided", 401)
 
-	if('DATA' not in body):
+	if('DATA' not in keys):
 		logger.error(f"{request.remote_addr} - No data provided")
 		return ("Error, no data provided", 402)
 
