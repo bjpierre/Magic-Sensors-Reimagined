@@ -14,6 +14,7 @@ import time
 from flask import Flask, request, Response
 from datetime import datetime
 import tf_model_handler
+import tensorflow as tf
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
