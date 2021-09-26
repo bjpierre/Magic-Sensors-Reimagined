@@ -82,7 +82,7 @@ def _debug_post_redeploy() -> None:
 
 
 @app.route("/debug/post/enable_logging", methods=['POST'])
-def _debug_post_enable_logging() -> (str, int)):
+def _debug_post_enable_logging() -> (str, int):
 	""" This is a debug function which will allow for an end user to
 	enabled or disable logging on the backend. This will help if there's a lot
 	of requests as the logging file won't grow super fast.
