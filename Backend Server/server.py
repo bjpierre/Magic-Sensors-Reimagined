@@ -103,7 +103,7 @@ def _debug_post_enable_logging() -> None:
 		logger.error(f"{request.remote_addr} - ENABLED not provided")
 		return ("Error, no ENABLED provided", 401)
 
-	if(body["ENABLED"] != "True" && body["ENABLED"] != "False"):
+	if(body["ENABLED"] != "True" and body["ENABLED"] != "False"):
 		logger.error(f"{request.remote_addr} - ENABLED key does not have a"
 					 f" valid value")
 		return ("ENABLED not a valid value", 401)
