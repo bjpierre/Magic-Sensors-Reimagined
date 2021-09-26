@@ -15,7 +15,7 @@ import tf_model_handler
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
 __status__ = "Development"
@@ -35,7 +35,7 @@ def generate_pid_file() -> None:
 		f.write(pid)
 
 if __name__ == "__main__":
-	logger.init_logger()
+	#logger.init_logger()
 	logger.info(f"App launch - Verion: {server.__version__}")
 
 	generate_pid_file()

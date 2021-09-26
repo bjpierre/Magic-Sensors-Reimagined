@@ -59,12 +59,13 @@
 
 import time
 import random
+import tensorflow as tf
 from enum import Enum
 from threading import Thread
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
-__version__ = "1.0.9"
+__version__ = "1.0.10"
 __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
 __status__ = "Development"
