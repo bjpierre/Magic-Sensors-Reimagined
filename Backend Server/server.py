@@ -109,7 +109,7 @@ def _debug_post_enable_logging() -> None:
 					 f" valid value")
 		return ("ENABLED not a valid value", 401)
 
-	logger.LOGGING_ENABLED = True if body["key"] == "True" else False
+	logger.LOGGING_ENABLED = True if body.get("ENABLED", '') == "True" else False
 
 
 @app.route("/debug/get/time", methods=['GET'])
