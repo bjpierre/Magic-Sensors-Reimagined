@@ -1,0 +1,34 @@
+Docker Environment Setup Steps
+
+FROM ubuntu:latest
+MAINTAINER ryanjl9@iastate.edu
+
+RUN apt update
+RUN apt install apache2 -y
+RUN apt install git -y
+RUN apt install cron
+RUN apt install rsyslog
+RUN apt install python3.9 -y
+RUN apt install python3-pip -y
+
+RUN pip3 install tensorflow==2.6
+RUN pip3 install flask==2.0.1
+RUN pip3 install psutil==5.8.0
+
+RUN mkdir -p /home/sd2021/gitRepo
+RUN mkdir -p /var/log/sd2021_server
+
+COPY server.tab /etc/cron.d/server.tab
+
+RUN cd /home/sd2021/gitRepo
+CMD git clone https://github.com/bjpierre/Magic-Sensors-Reimagined.git
+
+RUN service apache2 start
+RUN cron -f &
+
+RUN chmod 0664 /etc/cron.d/server.tab
+RUN touch /var/log/cron.log
+RUN crontab /etc/cron.d/server.tab
+
+-------- cron file --------
+* * * * * python3 /home/sd2021/gitRepo/Magic-Sensors-Reimagined/Backend\ Server/server_daemon.py

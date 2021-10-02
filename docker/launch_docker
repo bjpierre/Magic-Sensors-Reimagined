@@ -1,0 +1,2 @@
+docker pull ryanjl9/senior-design
+docker run --rm --name sd2021 ryanjl9/senior-design &

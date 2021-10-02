@@ -1,0 +1,2 @@
+cron -f &
+service apache2 start
