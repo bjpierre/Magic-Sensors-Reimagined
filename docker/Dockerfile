@@ -10,8 +10,8 @@ RUN apt install rsyslog -y
 RUN apt install python3.9 -y
 RUN apt install python3-pip -y
 
-EXPOSE 20001
-EXPOSE 20002
+EXPOSE 20001/tcp
+EXPOSE 20002/tcp
 
 COPY requirements.txt ./
 COPY startup ./

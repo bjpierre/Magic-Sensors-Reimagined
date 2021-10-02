@@ -59,7 +59,7 @@
 
 import time
 import random
-import tensorflow as tf
+#import tensorflow as tf
 from enum import Enum
 from threading import Thread
 
