@@ -7,9 +7,10 @@
 
 char *project_type;
 
-#define CSI_RAW 1
+#define VERBOSITY 1 //0 = only to uart, 1 = drops mac to serial, 2 = drops mac and csi to serial, 3 = console, no uart
+#define CSI_RAW 0
 #define RSSI 0
-#define CSI_AMPLITUDE 0
+#define CSI_AMPLITUDE 1
 #define CSI_PHASE 0
 
 #define CSI_TYPE CSI_RAW
@@ -19,77 +20,53 @@ void _wifi_csi_cb(void *ctx, wifi_csi_info_t *data) {
     //https://github.com/espressif/esp-idf/blob/9d0ca60398481a44861542638cfdc1949bb6f312/components/esp_wifi/include/esp_wifi_types.h#L314
 
     int8_t *my_ptr;
-#if RSSI
-	outprintf("[%d]\n", d.rx_ctrl.rssi);
-#endif
-#if CSI_RAW
-    if(strcmp("AP", project_type) == 0){
-        outprintf("AP Handling CSICB\n  ..  Not Analyzing\n");
-    }else{
-
-        char buffer[2048];
-
-        //<---------This tells us we need to do some filtering--->
-        //outprintf("Handling CSICB: %02X:%02X:%02X:%02X:%02X:%02X\n", data[0].mac);
-
 
         my_ptr = data->buf;
+        char buffer[2048];
+        int index = 0;
         
 
-        int i =0;
-        int index = 0;
         index += sprintf(&buffer[index], "[");
+#if RSSI
+index += sprintf(&buffer[index], "[%d]\n", d.rx_ctrl.rssi);
+#endif
+
+#if CSI_RAW
+    if(strcmp("AP", project_type) == 0 && VERBOSITY >= 1){
+        outprintf("AP Handling CSICB\n  ..  Not Analyzing\n");
+    }else{
+        //outprintf("Handling CSICB: %02X:%02X:%02X:%02X:%02X:%02X\n", data[0].mac);
+        int i =0;
+
         for(i =0; i<105; i++){
             index += sprintf(&buffer[index], "%d,", my_ptr[i+12]);
         }
         index += sprintf(&buffer[index], "%d", my_ptr[105+12]);
-        sprintf(&buffer[index],"]");
-
-        //<------This prints our values to urat---->
-        //uart_write_bytes(UART_NUM_2, (const char*)buffer, strlen(buffer));
-        //<---------This allows our data to be seen on the conosole but it kills performance-------->
-        outprintf(buffer);
-
-        //<-----This is good for debugging---->
-        // char* test_str = "This is a test string.\n";
-        // uart_write_bytes(UART_NUM_2, (const char*)test_str, strlen(test_str));
-        // outprintf(test_str);
-
-        //<-----This is here incase we need it later---->
-        //start at 12(6*2) as the first 5 subcarries are useless <i>tm</i>
-        //outprintf("%d,[%d", data->len, my_ptr[0+12]);
-        // snprintf(buffer, sizeof(buffer), "[%d", my_ptr[0+12]);
-        // uart_write_bytes(UART_NUM_2, (const char*)buffer, strlen(buffer));
-        // //start at 11 as we printed 10, end at 118(128-(5*2)) as the last 5 subarriers are also useless in our setup
-        // for (int i = 0+13; i < 128-10; i++) {
-        //     //outprintf(",%d", my_ptr[i]);
-        //     snprintf(buffer, sizeof(buffer),",%d", my_ptr[i]);
-        //     uart_write_bytes(UART_NUM_2, (const char*)buffer, strlen(buffer));
-        // }
-        // snprintf(buffer, sizeof(buffer),"]\n");
-
-        //fflush(stdout);
+        
     }
     
 #endif
 #if CSI_AMPLITUDE
-     outprintf("%d,[", data->len);
      my_ptr = data->buf;
 
-     for (int i = 0; i < 64; i++) {
-         outprintf("%.4f ", sqrt(pow(my_ptr[i * 2], 2) + pow(my_ptr[(i * 2) + 1], 2)));
+     for (int j = 6; j < 64; j++) {
+         index += sprintf(&buffer[index],"%.4f ", sqrt(pow(my_ptr[j * 2], 2) + pow(my_ptr[(j * 2) + 1], 2)));
      }
-     outprintf("]\n\n");
 #endif
 #if CSI_PHASE
-     //outprintf("%d,[", data->len);
-     my_ptr = data->buf;
-
-     for (int i = 0; i < 64; i++) {
-                 outprintf("%.4f, ", atan2(my_ptr[i*2], my_ptr[(i*2)+1]));
-             }
-     //outprintf("]\n\n");
+     for (int k = 6; k < 64; k++) {
+        index += sprintf(&buffer[index],"%.4f, ", atan2(my_ptr[k*2], my_ptr[(k*2)+1]));
+    }
 #endif
+
+    sprintf(&buffer[index],"]");
+    if(VERBOSITY < 3) {
+        uart_write_bytes(UART_NUM_2, (const char*)buffer, strlen(buffer));
+    }
+    if(VERBOSITY > 1){
+        outprintf(buffer);
+        outprintf(" \n ");
+    }
     // outprintf("\n");
     sd_flush();
     vTaskDelay(0);
