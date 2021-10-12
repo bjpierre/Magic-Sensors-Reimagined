@@ -179,8 +179,8 @@ def _debug_get_exists() -> (str, int):
 	return ("Success", 200)
 
 
-@app.route("/app/get/list_of_servers", methods=['GET'])
-def _app_get_list_of_servers() -> str:
+@app.route("/server/get/list_of_servers", methods=['GET'])
+def _server_get_list_of_servers() -> str:
 	""" Returns a list of all servers that have messaged the backend server
 	within the past 15 seconds.
 
