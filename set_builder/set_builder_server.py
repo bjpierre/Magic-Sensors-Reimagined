@@ -14,7 +14,7 @@ from threading import Thread
 from enum import Enum
 
 PORT = 20003
-WAIT_TIME = 5.0
+WAIT_TIME = 180.0
 
 class AppSM (Enum):
 	WAIT_FOR_START = 1
