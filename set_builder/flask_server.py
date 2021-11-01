@@ -7,6 +7,7 @@ app = Flask(__name__)
 def _ml_post_inference():
 	global s
 	s.send(str(request.data).encode())
+	return 200
 
 
 if __name__ == "__main__":
