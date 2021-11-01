@@ -86,11 +86,9 @@ class Server:
 		if self.conn == None:
 			return None
 
-		write_mutex.acquire()
-		self.data = self.conn.recv(1024).decode("utf-8").strip("\n")
+		self.data = self.conn.recv(65536).decode("utf-8").strip("\n")
 		if(self.data != None):
 			self.has_data = True
-		write_mutex.release()
 
 	def consume(self):
 		self.has_data = False
@@ -117,7 +115,9 @@ def thread_func():
 	global s
 	global sm
 	while(sm != AppSM.DONE):
+		write_mutex.acquire()
 		s.get_data()
+		write_mutex.release()
 
 
 def test_server():
