@@ -170,6 +170,7 @@ if __name__ == '__main__':
 		while(time.time() - stime < WAIT_TIME):
 			write_mutex.acquire()
 			string = s.consume()
+			print(string)
 			fw.write_line(string)
 			write_mutex.release()
 
