@@ -7,8 +7,15 @@ app = Flask(__name__)
 def _ml_post_inference():
 	global s
 	string = str(request.json["payload"])
+	string.strip("[]")
+	stringarr = string.split()
+	if(len(stringarr) != 116):
+		print(f"Malformed packet: {len(stringarr)}")
+		return "Failure"
+
+	print("Good packet")
 	s.send(string.encode())
-	print(string)
+	
 	return "Success"
 
 
