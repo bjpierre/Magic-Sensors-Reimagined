@@ -82,7 +82,6 @@ class Server:
 		self.conn, addr = self.sock.accept()
 
 	def get_data(self):
-		global write_mutex
 		if self.conn == None:
 			return None
 
@@ -114,9 +113,11 @@ def test_fw():
 def thread_func():
 	global s
 	global sm
+	global write_mutex
 	while(sm != AppSM.DONE):
 		write_mutex.acquire()
 		s.get_data()
+		time.sleep(0.01)
 		write_mutex.release()
 
 
