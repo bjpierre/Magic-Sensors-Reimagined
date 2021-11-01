@@ -117,8 +117,8 @@ def thread_func():
 	while(sm != AppSM.DONE):
 		write_mutex.acquire()
 		s.get_data()
-		time.sleep(0.01)
 		write_mutex.release()
+		time.sleep(0.01)
 
 
 def test_server():
