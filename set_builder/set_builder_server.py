@@ -10,11 +10,11 @@ import os
 import random
 import time
 import copy
-from threading import Thread
+from threading import Thread, Lock
 from enum import Enum
 
 PORT = 20003
-WAIT_TIME = 180.0
+WAIT_TIME = 30.0
 
 class AppSM (Enum):
 	WAIT_FOR_START = 1
@@ -82,12 +82,15 @@ class Server:
 		self.conn, addr = self.sock.accept()
 
 	def get_data(self):
+		global write_mutex
 		if self.conn == None:
 			return None
 
+		write_mutex.acquire()
 		self.data = self.conn.recv(1024).decode("utf-8").strip("\n")
 		if(self.data != None):
 			self.has_data = True
+		write_mutex.release()
 
 	def consume(self):
 		self.has_data = False
@@ -139,13 +142,16 @@ if __name__ == '__main__':
 	s = Server()
 	sm = AppSM.WAIT_FOR_START
 
+	write_mutex = Lock()
+
 	fw = FileWriter("output", "set_data_")
 	print("Client Connected - Waiting for data...")
 
 	t = Thread(target=thread_func, args=())
 	t.start()
 
-	angles = [0, 15, 30, 45, 60, 75, 90]
+	#angles = [0, 15, 30, 45, 60, 75, 90]
+	angles = [0]
 
 	cmd = ""
 	angle = 0
@@ -162,7 +168,9 @@ if __name__ == '__main__':
 		print(f"Gathering data points for angle {angle}")
 
 		while(time.time() - stime < WAIT_TIME):
+			write_mutex.acquire()
 			fw.write_line(s.consume())
+			write_mutex.release()
 
 	fw.close_file()
 	sm = AppSM.DONE
