@@ -13,7 +13,7 @@ import copy
 from threading import Thread
 from enum import Enum
 
-PORT = 20002
+PORT = 20003
 WAIT_TIME = 5.0
 
 class AppSM (Enum):
