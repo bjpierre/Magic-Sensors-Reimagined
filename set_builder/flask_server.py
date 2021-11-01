@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route("/ml/post/inference", methods=['POST'])
 def _ml_post_inference():
 	global s
-	s.send(str(request.data).encode())
+	s.send(str(request.json["payload"]).encode())
 	return "Success"
 
 
