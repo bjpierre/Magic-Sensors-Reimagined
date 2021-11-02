@@ -1,5 +1,6 @@
 from flask import Flask, request, Response
 from rolling_average import Rolling_Average
+from collections import Counter
 import socket
 
 app = Flask(__name__)
@@ -12,9 +13,11 @@ def _ml_post_inference():
 	global avg500
 
 	string = str(request.json["payload"])
-	string.strip("[]")
+	open_brace_cnt = Counter(string).get("[")
+	close_brace_cnt = Counter(string).get("]")
+	string = string.strip("[]")
 	stringarr = string.split()
-	if(len(stringarr) != 106):
+	if(len(stringarr) != 106 or open_brace_cnt != 1 or close_brace_cnt != 1):
 		avg10.add(0)
 		avg100.add(0)
 		avg500.add(0)
