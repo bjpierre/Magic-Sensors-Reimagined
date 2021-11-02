@@ -14,7 +14,7 @@ from threading import Thread, Lock
 from enum import Enum
 
 PORT = 20003
-WAIT_TIME = 30.0
+WAIT_TIME = 180.0
 
 class AppSM (Enum):
 	WAIT_FOR_START = 1
@@ -151,8 +151,7 @@ if __name__ == '__main__':
 	t = Thread(target=thread_func, args=())
 	t.start()
 
-	#angles = [0, 15, 30, 45, 60, 75, 90]
-	angles = [0]
+	angles = [0, 15, 30, 45, 60, 75, 90]
 
 	cmd = ""
 	angle = 0
@@ -171,8 +170,6 @@ if __name__ == '__main__':
 		while(time.time() - stime < WAIT_TIME):
 			write_mutex.acquire()
 			string = s.consume()
-			if(string != None):
-				print(string)
 			fw.write_line(string)
 			write_mutex.release()
 
