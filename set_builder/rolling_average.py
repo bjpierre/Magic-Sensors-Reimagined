@@ -9,20 +9,27 @@ from collections import deque
 
 class Rolling_Average:
 
-	def __init__(self, max, quiescent):
+	def __init__(self, max, quiescent = None):
 		self.max = max
-		self.running_total = max*quiescent
+		
 		self.d = deque()
+		
+		if(quiescent == None):
+			self.running_total = 0
+			return
+
+		self.running_total = max*quiescent
 		for i in range(max):
 			self.d.append(quiescent)
 
 	def add(self, val):
-		to_remove = self.d.popleft()
-		self.running_total -= to_remove
+		if len(self.d) == self.max:
+			to_remove = self.d.popleft()
+			self.running_total -= to_remove
 		self.d.append(val)
 		self.running_total += val
 
 	def get_average(self):
-		return float(self.running_total/self.max)
+		return float(self.running_total/len(self.d))
 
 		
