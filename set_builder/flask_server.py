@@ -21,6 +21,7 @@ def _ml_post_inference():
 		avg10.add(0)
 		avg100.add(0)
 		avg500.add(0)
+		print(f"\n{str(request.json["payload"])}\n")
 		print(f"Malformed packet: {len(stringarr)}")
 		print(f"Last 10 Packets Success: {avg10.get_average()}")
 		print(f"Last 100 Packets Success: {avg100.get_average()}")
