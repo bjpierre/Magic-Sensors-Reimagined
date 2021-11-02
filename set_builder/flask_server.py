@@ -45,9 +45,9 @@ def _ml_post_inference():
 if __name__ == "__main__":
 	data = None
 
-	avg10 = Rolling_Average(10, 1)
-	avg100 = Rolling_Average(100, 1)
-	avg500 = Rolling_Average(500, 1)
+	avg10 = Rolling_Average(10)
+	avg100 = Rolling_Average(100)
+	avg500 = Rolling_Average(500)
 
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.connect(("localhost", 20003))
