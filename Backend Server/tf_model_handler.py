@@ -208,6 +208,7 @@ def _thread_inferencing_handler():
 			INFERENCING_STATE = MLInferencingStates.INFERENCING_AVAILABLE
 			print("\nModel Still Loading\n")
 
+		print(f"TFH - Data Available: {DATA_AVAILABLE}")
 		if INFERENCING_STATE == MLInferencingStates.INFERENCING_AVAILABLE and \
 		   DATA_AVAILABLE:
 			print("Data Available")
