@@ -180,6 +180,18 @@ def _debug_get_exists() -> (str, int):
 	return ("Success", 200)
 
 
+@app.route("/debug/get/training_failure", methods=['GET'])
+def _debug_get_training_failure() -> (str, int):
+	""" This function is for the app to check if the backend server exists. If
+	the app makes this request, it can check to see if the server is answering
+	requests.
+
+	:return: Simple feedback and a 200 status code
+	:rtype: (str, int)
+	"""
+	return (tfh.TRAINING_FAILURE_ERROR, 200)
+
+
 @app.route("/app/get/list_of_servers", methods=['GET'])
 def _app_get_list_of_servers() -> str:
 	""" Returns a list of all servers that have messaged the backend server

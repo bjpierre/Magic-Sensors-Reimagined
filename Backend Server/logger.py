@@ -17,7 +17,7 @@ __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
 __status__ = "Development"
 
-LOGGING_ENABLED = False
+LOGGING_ENABLED = True
 
 def init_logger():
 	""" This function will initalize our logger to write a log file to 
