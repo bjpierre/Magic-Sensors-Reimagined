@@ -171,7 +171,7 @@ def _thread_training_handler():
 
 			ESTIMATOR = KerasClassifier(build_fn=baseline_model, epochs=250, batch_size=5, verbose=0)
 
-			X_train_m, X_test_m, Y_train_m, Y_test_m = train_test_split(X_mag, dummy_y, test_size=0.0, random_state=seed)
+			X_train_m, X_test_m, Y_train_m, Y_test_m = train_test_split(X_mag, dummy_y, test_size=0.01, random_state=seed)
 
 			ESTIMATOR.fit(X_train_m, Y_train_m)
 
