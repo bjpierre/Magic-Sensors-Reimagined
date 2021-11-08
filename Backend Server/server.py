@@ -289,6 +289,8 @@ def _ml_post_inference():
 	DATA_AVAILABLE = list(string)
 	DATA_AVAILABLE = True
 
+	return ("Success", 200)
+
 
 @app.route("/training/post/train", methods=['POST'])
 def _training_post_train() -> (str, int):
