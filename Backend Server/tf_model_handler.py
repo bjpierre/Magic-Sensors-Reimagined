@@ -128,7 +128,8 @@ INFERENCING_STATE = MLInferencingStates.MODEL_STILL_LOADING
 TRAINING_TIME = 0.0
 TRAINING_DATA = []
 DATA_TYPE = "NOT_SET"
-ESTIMATOR = None
+ESTIMATOR_M = None
+ESTIMATOR_P = None
 ENCODER = None
 DATA_AVAILABLE = False
 INFERENCING_DATA = []
@@ -141,7 +142,8 @@ def _thread_training_handler():
 	"""
 	global TRAINING_STATE
 	global TRAINING_TIME
-	global ESTIMATOR
+	global ESTIMATOR_M
+	global ESTIMATOR_P
 	global ENCODER
 
 	tt_start = 0.0
@@ -176,8 +178,8 @@ def _thread_training_handler():
 				# one hot encoding
 				dummy_y = np_utils.to_categorical(encoded_Y)
 
-				ESTIMATOR_M = KerasClassifier(build_fn=baseline_model, epochs=5, batch_size=5, verbose=0)
-				ESTIMATOR_P = KerasClassifier(build_fn=baseline_model, epochs=5, batch_size=5, verbose=0)
+				ESTIMATOR_M = KerasClassifier(build_fn=baseline_model, epochs=1, batch_size=5, verbose=0)
+				ESTIMATOR_P = KerasClassifier(build_fn=baseline_model, epochs=1, batch_size=5, verbose=0)
 
 				X_train_m, X_test_m, Y_train_m, Y_test_m = train_test_split(X_mag, dummy_y, test_size=0.01, random_state=seed)
 				X_train_p, X_test_p, Y_train_p, Y_test_p = train_test_split(X_phase, dummy_y, test_size=0.01, random_state=seed)
@@ -205,7 +207,8 @@ def _thread_inferencing_handler():
 	global INFERENCING_DATA
 	global PREDICTION
 	global DATA_AVAILABLE
-	global ESTIMATOR
+	global ESTIMATOR_M
+	global ESTIMATOR_P
 
 	while(True):
 		if INFERENCING_STATE == MLInferencingStates.MODEL_STILL_LOADING and \
