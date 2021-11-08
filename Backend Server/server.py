@@ -273,6 +273,7 @@ def _ml_post_inference():
 	global INFERENCING_STATE
 
 	if DATA_AVAILABLE:
+		print("Data Available")
 		return ("Success", 200)
 
 	if INFERENCING_STATE == tfh.MLInferencingStates.INFERENCING_IN_PROGRESS:
