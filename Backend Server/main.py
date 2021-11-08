@@ -35,7 +35,7 @@ def generate_pid_file() -> None:
 		f.write(pid)
 
 if __name__ == "__main__":
-	#logger.init_logger()
+	logger.init_logger()
 	logger.info(f"App launch - Verion: {server.__version__}")
 
 	generate_pid_file()

@@ -293,7 +293,7 @@ def _ml_get_inference_results():
 
 
 @app.route("/ml/get/test_predicition_results", methods=['GET'])
-def _ml_get_inference_results():
+def _ml_get_test_predicition_results():
 	if(tfh.PREDICTION == ()):
 		return ("DATA NOT AVAILABLE", 200)
 
