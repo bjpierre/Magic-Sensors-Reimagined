@@ -206,7 +206,7 @@ def _thread_inferencing_handler():
 
 		if INFERENCING_STATE.INFERENCING_IN_PROGRESS:
 			DATA_AVAILABLE = False
-			prediction = ESTIMATOR.predict(INFERENCING_DATA)
+			predictions = ESTIMATOR.predict(INFERENCING_DATA)
 			predictions = ENCODER.inverse_transform(predictions)
 			predictions_classes = ESTIMATOR.predict_proba(INFERENCING_DATA)
 			PREDICTION = (predictions, predictions_classes)
