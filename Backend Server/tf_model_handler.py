@@ -59,7 +59,6 @@
 
 import time
 import random
-from server import DATA_AVAILABLE, INFERENCING_DATA
 from enum import Enum
 from threading import Thread
 
