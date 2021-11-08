@@ -292,6 +292,20 @@ def _ml_get_inference_results():
 	return ret
 
 
+@app.route("/ml/get/test_predicition_results", methods=['GET'])
+def _ml_get_inference_results():
+	if(tfh.PREDICTION == ()):
+		return ("DATA NOT AVAILABLE", 200)
+
+	ret = {}
+	ret["TEST_PREDICTION_M"] = tfh.TEST_DATA_PREDICTION[0].tolist()
+	ret["TEST_PREDICTION_M_CLASS"] = tfh.TEST_DATA_PREDICTION[1].tolist()
+	ret["TEST_PREDICTION_P"] = tfh.TEST_DATA_PREDICTION[2].tolist()
+	ret["TEST_PREDICTION_P_CLASS"] = tfh.TEST_DATA_PREDICTION[3].tolist()
+
+	return ret
+
+
 @app.route("/ml/post/inference", methods=['POST'])
 def _ml_post_inference():
 
