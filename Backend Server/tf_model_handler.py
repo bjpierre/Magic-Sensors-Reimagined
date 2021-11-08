@@ -137,6 +137,7 @@ ENCODER = None
 DATA_AVAILABLE = False
 INFERENCING_DATA = []
 PREDICTION = ()
+TEST_DATA_PREDICTION = ()
 TRAINING_FAILURE_ERROR = "<TRAINING NOT FAILED YET>"
 
 def _thread_training_handler():
@@ -149,6 +150,7 @@ def _thread_training_handler():
 	global ESTIMATOR_M
 	global ESTIMATOR_P
 	global ENCODER
+	global TEST_DATA_PREDICTION
 
 	tt_start = 0.0
 
@@ -165,7 +167,7 @@ def _thread_training_handler():
 				seed = 7
 				np.random.seed(seed)
 
-				dataframe = pandas.read_csv("TrainingDataSet.csv", header=0)
+				dataframe = pandas.read_csv("TrainingNoChairs.csv", header=0)
 				dataset = dataframe.values
 				X_mag = dataset[:,1:54].astype(float)
 				X_phase = dataset[:,54:107].astype(float)
@@ -197,6 +199,17 @@ def _thread_training_handler():
 						ESTIMATOR_P.fit(X_train_p, Y_train_p, verbose=2)
 						f.flush()
 				logger.info("\nEstimator Fit Done\n")
+
+				predictions_m = ESTIMATOR_M.predict(X_test_m)
+				predictions_m = ENCODER.inverse_transform(predictions_m)
+				predictions_classes_m = ESTIMATOR_M.predict_proba(X_test_m)
+
+				predictions_p = ESTIMATOR_P.predict(X_test_p)
+				predictions_p = ENCODER.inverse_transform(predictions_p)
+				predictions_classes_p = ESTIMATOR_P.predict_proba(X_test_p)
+
+				TEST_DATA_PREDICTION = (predictions_m, predictions_classes_m,
+							  			predictions_p, predictions_classes_p)
 
 				TRAINING_TIME = time.time() - tt_start
 				TRAINING_STATE = MLTrainingStates.FINISHED_TRAINING
