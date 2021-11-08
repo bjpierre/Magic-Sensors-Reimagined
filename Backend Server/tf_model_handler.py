@@ -190,10 +190,12 @@ def _thread_training_handler():
 				X_train_p, X_test_p, Y_train_p, Y_test_p = train_test_split(X_phase, dummy_y, test_size=0.01, random_state=seed)
 
 				logger.info("\nEstimator Fit Starting\n")
-				with open("fit_redirect.txt", "w+", 0) as f:
+				with open("fit_redirect.txt", "w+") as f:
 					with redirect_stdout(f):
 						ESTIMATOR_M.fit(X_train_m, Y_train_m, verbose=2)
+						f.flush()
 						ESTIMATOR_P.fit(X_train_p, Y_train_p, verbose=2)
+						f.flush()
 				logger.info("\nEstimator Fit Done\n")
 
 				TRAINING_TIME = time.time() - tt_start
