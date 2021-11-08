@@ -218,6 +218,7 @@ def _thread_inferencing_handler():
 		if INFERENCING_STATE == MLInferencingStates.INFERENCING_IN_PROGRESS:
 			try:
 				print("Beginning Inference")
+				print(f"Inferencing Data - {INFERENCING_DATA}")
 				DATA_AVAILABLE = False
 				predictions = ESTIMATOR.predict(INFERENCING_DATA)
 				predictions = ENCODER.inverse_transform(predictions)
