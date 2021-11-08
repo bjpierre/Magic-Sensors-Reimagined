@@ -179,7 +179,7 @@ def _thread_training_handler():
 				X_train_m, X_test_m, Y_train_m, Y_test_m = train_test_split(X_mag, dummy_y, test_size=0.01, random_state=seed)
 
 				print("\nEstimator Fit Starting\n")
-				ESTIMATOR.fit(X_train_m, Y_train_m, verboose=2)
+				ESTIMATOR.fit(X_train_m, Y_train_m, verbose=2)
 				print("\nEstimator Fit Done\n")
 
 				TRAINING_TIME = time.time() - tt_start
