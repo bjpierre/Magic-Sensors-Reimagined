@@ -14,6 +14,7 @@ import time
 from flask import Flask, request, Response
 from collections import Counter
 from datetime import datetime
+from tf_model_handler import INFERENCING_STATE
 import tf_model_handler as tfh
 
 __author__ = "Ryan Lanciloti"
@@ -271,12 +272,12 @@ def _server_post_keep_alive() -> (str, int):
 def _ml_post_inference():
 	global DATA_AVAILABLE
 	global INFERENCING_DATA
-	global tfh.INFERENCING_STATE
+	global INFERENCING_STATE
 
 	if DATA_AVAILABLE:
 		return ("Success", 200)
 
-	if tfh.INFERENCING_STATE == tfh.MLInferencingStates.INFERENCING_IN_PROGRESS:
+	if INFERENCING_STATE == tfh.MLInferencingStates.INFERENCING_IN_PROGRESS:
 		return ("Success", 200)
 
 	string = str(request.json["payload"])
