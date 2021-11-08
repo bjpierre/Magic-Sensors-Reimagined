@@ -59,9 +59,21 @@
 
 import time
 import random
-#import tensorflow as tf
+from server import DATA_AVAILABLE, INFERENCING_DATA
 from enum import Enum
 from threading import Thread
+
+import numpy
+import pandas
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.wrappers.scikit_learn import KerasClassifier
+from keras.utils import np_utils
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import KFold
+import sys
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
@@ -70,7 +82,7 @@ __maintainer__ = "Ryan Lanciloti"
 __email__ = ["ryanjl9@iastate.edu", "rlanciloti@outlook.com"]
 __status__ = "Development"
 
-class MLStates(Enum):
+class MLTrainingStates(Enum):
 	""" This is the enum that will dictate the states that our model
 	will transition through while training.
 
@@ -80,7 +92,7 @@ class MLStates(Enum):
 	data.
 
 	START_TRAINING: This state will act as a flag to kick off training
-	the model. STATE will only ever be set to this state by our server
+	the model. TRAINING_STATE will only ever be set to this state by our server
 	as training has to be requested.
 
 	TRAINING_IN_PROGRESS: While training is happening, this will act
@@ -98,6 +110,13 @@ class MLStates(Enum):
 	TRAINING_IN_PROGRESS = 2
 	FINISHED_TRAINING = 3
 
+
+class MLInferencingStates(Enum):
+	MODEL_STILL_LOADING = 0
+	INFERENCING_AVAILABLE = 1
+	INFERENCING_IN_PROGRESS = 2
+
+
 """ For testing purposed, until we have a model, we're going to set
 the state to FINISHED_TRAINING. Later on, when we have a model,
 we will check if the model exists or not. If not, we will set the
@@ -105,34 +124,94 @@ state to MODEL_DOESNT_EXIST, otherwise FINISHED_TRAINING given
 we can assume we've successfully trained the model.
 """
 
-STATE = MLStates.MODEL_DOESNT_EXIST
+TRAINING_STATE = MLTrainingStates.MODEL_DOESNT_EXIST
+INFERENCING_STATE = MLInferencingStates.MODEL_STILL_LOADING
 TRAINING_TIME = 0.0
 TRAINING_DATA = []
 DATA_TYPE = "NOT_SET"
+ESTIMATOR = None
+PREDICTION = ()
 
-def _thread_training_handle():
+def _thread_training_handler():
 	""" This function is responsible for handling the machine learning
 	thread. This may only act as a state machine or it may be the thread
 	that tensorflow runs on.
 	"""
-	global STATE
+	global TRAINING_STATE
 	global TRAINING_TIME
 
 	tt_start = 0.0
 
 	while(True):
-		if STATE == MLStates.START_TRAINING:
+		if TRAINING_STATE == MLTrainingStates.START_TRAINING:
 			tt_start = time.time()
 			TRAINING_TIME = 0.0
-			STATE = MLStates.TRAINING_IN_PROGRESS
+			TRAINING_STATE = MLTrainingStates.TRAINING_IN_PROGRESS
 		
-		if STATE == MLStates.TRAINING_IN_PROGRESS:
-			time.sleep(30 + random.randint(0, 15))
+		if TRAINING_STATE == MLTrainingStates.TRAINING_IN_PROGRESS:
+
+			seed = 7
+			numpy.random.seed(seed)
+
+			dataframe = pandas.read_csv("TrainingDataSet.csv", header=0)
+			dataset = dataframe.values
+			X_mag = dataset[:,1:54].astype(float)
+			X_phase = dataset[:,54:107].astype(float)
+			Y = dataset[:,0]
+
+			# assign integer to each class
+			encoder = LabelEncoder()
+			encoder.fit(Y)
+			encoded_Y = encoder.transform(Y)
+
+			# one hot encoding
+			dummy_y = np_utils.to_categorical(encoded_Y)
+
+			ESTIMATOR = KerasClassifier(build_fn=baseline_model, epochs=250, batch_size=5, verbose=0)
+			ESTIMATOR.fit(X_train_m, Y_train_m)
+
 			TRAINING_TIME = time.time() - tt_start
-			STATE = MLStates.FINISHED_TRAINING
+			TRAINING_STATE = MLTrainingStates.FINISHED_TRAINING
 		
-		if STATE == MLStates.FINISHED_TRAINING:
+		if TRAINING_STATE == MLTrainingStates.FINISHED_TRAINING:
 			pass
+
+
+def _thread_inferencing_handler():
+	"""
+	"""
+	global INFERENCING_STATE
+	global TRAINING_STATE
+	global INFERENCING_AVAILABLE
+	global INFERENCING_DATA
+	global PREDICTION
+	global DATA_AVAILABLE
+
+	while(True):
+		if INFERENCING_STATE == MLInferencingStates.MODEL_STILL_LOADING
+		   and TRAINING_STATE == MLTrainingStates.FINISHED_TRAINING:
+			INFERENCING_STATE = MLInferencingStates.INFERENCING_AVAILABLE
+
+		if INFERENCING_STATE == MLInferencingStates.INFERENCING_AVAILABLE 
+		   and DATA_AVAILABLE:
+			INFERENCING_STATE = MLInferencingStates.INFERENCING_IN_PROGRESS
+
+		if INFERENCING_STATE.INFERENCING_IN_PROGRESS:
+			DATA_AVAILABLE = False
+			prediction = ESTIMATOR.predict(INFERENCING_DATA)
+			predictions = encoder.inverse_transform(predictions)
+			predictions_classes = estimator.predict_proba(INFERENCING_DATA)
+			PREDICTION = (predictions, predictions_classes)
+			INFERENCING_STATE = MLInferencingStates.INFERENCING_AVAILABLE
+
+
+def baseline_model():
+	model = Sequential()
+	model.add(Dense(24, input_dim=53, activation='relu'))
+	model.add(Dense(7, activation='softmax')) # normalizes output to 1
+
+	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+	return model
 
 
 def init_tf_handler():
@@ -140,16 +219,19 @@ def init_tf_handler():
 	Here is where we'd do the check to see if the model exists or not.
 	"""
 
-	global STATE
+	global TRAINING_STATE
 	global TRAINING_TIME
 	global TRAINING_DATA
+	global INFERENCING_STATE
 	global DATA_TYPE
 
-	STATE = MLStates.FINISHED_TRAINING
+	TRAINING_STATE = MLTrainingStates.START_TRAINING
 	TRAINING_TIME = 0.0
 	TRAINING_DATA = []
 	DATA_TYPE = "NOT_SET"
 
-	state_machine = Thread(target=_thread_training_handle, args=())
-	state_machine.start()
+	training_state_machine = Thread(target=_thread_training_handler, args=())
+	inferencing_state_machine = Thread(target=_thread_inferencing_handler, args=())
+	training_state_machine.start()
+	inferencing_state_machine.start()
 	

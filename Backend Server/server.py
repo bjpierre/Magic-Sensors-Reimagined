@@ -12,9 +12,9 @@ import os, sys
 import logger
 import time
 from flask import Flask, request, Response
+from collections import Counter
 from datetime import datetime
-import tf_model_handler
-#import tensorflow as tf
+import tf_model_handler as tfh
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
@@ -27,6 +27,8 @@ RPI_SERVERS = list()
 RPI_SERVERS_LOCK = threading.Lock()
 
 MAX_TIMEOUT = 30.0
+DATA_AVAILABLE = False
+INFERENCING_DATA = []
 
 class RPIServer:
 	def __init__(self, ip_addr: str, name: str, id: int) -> None:
@@ -265,6 +267,30 @@ def _server_post_keep_alive() -> (str, int):
 	return ("Success", 200)
 
 
+@app.route("/ml/post/inference", methods=['POST'])
+def _ml_post_inference():
+	global DATA_AVAILABLE
+	global INFERENCING_DATA
+	global tfh.INFERENCING_STATE
+
+	if DATA_AVAILABLE:
+		return ("Success", 200)
+
+	if tfh.INFERENCING_STATE == tfh.MLInferencingStates.INFERENCING_IN_PROGRESS:
+		return ("Success", 200)
+
+	string = str(request.json["payload"])
+	open_brace_cnt = Counter(string).get("[")
+	close_brace_cnt = Counter(string).get("]")
+	string = string.strip("[]")
+	stringarr = string.split(",")
+	if(len(stringarr) != 106 or open_brace_cnt != 1 or close_brace_cnt != 1):
+		return ("Malformed Packet Recieved", 400)
+
+	DATA_AVAILABLE = list(string)
+	DATA_AVAILABLE = True
+
+
 @app.route("/training/post/train", methods=['POST'])
 def _training_post_train() -> (str, int):
 	""" This is going to be the function that kicks off training. It will
@@ -339,12 +365,12 @@ def _training_post_train() -> (str, int):
 	if(str(body['TYPE']) == "RSSI"):
 		tf_model_handler.DATA_TYPE = "RSSI"
 		tf_model_handler.TRAINING_DATA = body["DATA"]
-		tf_model_handler.STATE = tf_model_handler.MLStates.START_TRAINING
+		tf_model_handler.TRAINING_STATE = tf_model_handler.MLTrainingStates.START_TRAINING
 
 	elif(str(body['TYPE']) == "CSI"):
 		tf_model_handler.DATA_TYPE = "CSI"
 		tf_model_handler.TRAINING_DATA = body["DATA"]
-		tf_model_handler.STATE = tf_model_handler.MLStates.START_TRAINING
+		tf_model_handler.TRAINING_STATE = tf_model_handler.MLTrainingStates.START_TRAINING
 	
 	else:
 		logger.error(f"{request.remote_addr} - Data type doesn't exist")
@@ -364,7 +390,7 @@ def _training_get_training_status() -> str:
 	docs for more information on the states available.
 	:rtype: str
 	"""
-	return tf_model_handler.STATE.name
+	return tf_model_handler.TRAINING_STATE.name
 
 @app.route("/training/get/training_time", methods=['GET'])
 def _training_get_training_time() -> str:
