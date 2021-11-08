@@ -141,6 +141,8 @@ def _thread_training_handler():
 	"""
 	global TRAINING_STATE
 	global TRAINING_TIME
+	global ESTIMATOR
+	global ENCODER
 
 	tt_start = 0.0
 
