@@ -207,6 +207,7 @@ def _thread_inferencing_handler():
 			predictions = ENCODER.inverse_transform(predictions)
 			predictions_classes = ESTIMATOR.predict_proba(INFERENCING_DATA)
 			PREDICTION = (predictions, predictions_classes)
+			print(PREDICTION)
 			INFERENCING_STATE = MLInferencingStates.INFERENCING_AVAILABLE
 
 
