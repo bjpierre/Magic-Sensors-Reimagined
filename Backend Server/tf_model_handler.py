@@ -153,32 +153,40 @@ def _thread_training_handler():
 		
 		if TRAINING_STATE == MLTrainingStates.TRAINING_IN_PROGRESS:
 
-			seed = 7
-			numpy.random.seed(seed)
+			try:
+				seed = 7
+				numpy.random.seed(seed)
 
-			dataframe = pandas.read_csv("TrainingDataSet.csv", header=0)
-			dataset = dataframe.values
-			X_mag = dataset[:,1:54].astype(float)
-			X_phase = dataset[:,54:107].astype(float)
-			Y = dataset[:,0]
+				dataframe = pandas.read_csv("TrainingDataSet.csv", header=0)
+				dataset = dataframe.values
+				X_mag = dataset[:,1:54].astype(float)
+				X_phase = dataset[:,54:107].astype(float)
+				Y = dataset[:,0]
 
-			# assign integer to each class
-			ENCODER = LabelEncoder()
-			ENCODER.fit(Y)
-			encoded_Y = ENCODER.transform(Y)
+				print("\nModel Read In\n")
 
-			# one hot encoding
-			dummy_y = np_utils.to_categorical(encoded_Y)
+				# assign integer to each class
+				ENCODER = LabelEncoder()
+				ENCODER.fit(Y)
+				encoded_Y = ENCODER.transform(Y)
+				print("\nEncoder Fit done\n")
 
-			ESTIMATOR = KerasClassifier(build_fn=baseline_model, epochs=250, batch_size=5, verbose=0)
+				# one hot encoding
+				dummy_y = np_utils.to_categorical(encoded_Y)
 
-			X_train_m, X_test_m, Y_train_m, Y_test_m = train_test_split(X_mag, dummy_y, test_size=0.01, random_state=seed)
+				ESTIMATOR = KerasClassifier(build_fn=baseline_model, epochs=250, batch_size=5, verbose=0)
 
-			ESTIMATOR.fit(X_train_m, Y_train_m)
+				X_train_m, X_test_m, Y_train_m, Y_test_m = train_test_split(X_mag, dummy_y, test_size=0.01, random_state=seed)
 
-			TRAINING_TIME = time.time() - tt_start
-			TRAINING_STATE = MLTrainingStates.FINISHED_TRAINING
-			print("\nTraining Over\n")
+				print("\nEstimator Fit Starting\n")
+				ESTIMATOR.fit(X_train_m, Y_train_m)
+				print("\nEstimator Fit Done\n")
+
+				TRAINING_TIME = time.time() - tt_start
+				TRAINING_STATE = MLTrainingStates.FINISHED_TRAINING
+				print("\nTraining Over\n")
+			except Exception as e:
+				print(f"\nSomething Broke: {e}")
 		
 		if TRAINING_STATE == MLTrainingStates.FINISHED_TRAINING:
 			pass
