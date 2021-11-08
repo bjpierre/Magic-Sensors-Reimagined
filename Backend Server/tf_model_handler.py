@@ -151,6 +151,7 @@ def _thread_training_handler():
 			TRAINING_STATE = MLTrainingStates.TRAINING_IN_PROGRESS
 		
 		if TRAINING_STATE == MLTrainingStates.TRAINING_IN_PROGRESS:
+			print("Starting Training")
 
 			seed = 7
 			numpy.random.seed(seed)
@@ -177,6 +178,7 @@ def _thread_training_handler():
 
 			TRAINING_TIME = time.time() - tt_start
 			TRAINING_STATE = MLTrainingStates.FINISHED_TRAINING
+			print("Training Over")
 		
 		if TRAINING_STATE == MLTrainingStates.FINISHED_TRAINING:
 			pass
@@ -196,6 +198,7 @@ def _thread_inferencing_handler():
 		if INFERENCING_STATE == MLInferencingStates.MODEL_STILL_LOADING and \
 		   TRAINING_STATE == MLTrainingStates.FINISHED_TRAINING:
 			INFERENCING_STATE = MLInferencingStates.INFERENCING_AVAILABLE
+			print("Inferencing Available")
 
 		if INFERENCING_STATE == MLInferencingStates.INFERENCING_AVAILABLE and \
 		   DATA_AVAILABLE:
