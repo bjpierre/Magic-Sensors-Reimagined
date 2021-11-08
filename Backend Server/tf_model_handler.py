@@ -188,11 +188,11 @@ def _thread_inferencing_handler():
 	global DATA_AVAILABLE
 
 	while(True):
-		if INFERENCING_STATE == MLInferencingStates.MODEL_STILL_LOADING and 
+		if INFERENCING_STATE == MLInferencingStates.MODEL_STILL_LOADING and \
 		   TRAINING_STATE == MLTrainingStates.FINISHED_TRAINING:
 			INFERENCING_STATE = MLInferencingStates.INFERENCING_AVAILABLE
 
-		if INFERENCING_STATE == MLInferencingStates.INFERENCING_AVAILABLE and 
+		if INFERENCING_STATE == MLInferencingStates.INFERENCING_AVAILABLE and \ 
 		   DATA_AVAILABLE:
 			INFERENCING_STATE = MLInferencingStates.INFERENCING_IN_PROGRESS
 
