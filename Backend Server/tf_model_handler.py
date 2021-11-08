@@ -62,7 +62,7 @@ import random
 from enum import Enum
 from threading import Thread
 
-import numpy
+import numpy as np
 import pandas
 from keras.models import Sequential
 from keras.layers import Dense
@@ -157,7 +157,7 @@ def _thread_training_handler():
 
 			try:
 				seed = 7
-				numpy.random.seed(seed)
+				np.random.seed(seed)
 
 				dataframe = pandas.read_csv("TrainingDataSet.csv", header=0)
 				dataset = dataframe.values
@@ -176,12 +176,15 @@ def _thread_training_handler():
 				# one hot encoding
 				dummy_y = np_utils.to_categorical(encoded_Y)
 
-				ESTIMATOR = KerasClassifier(build_fn=baseline_model, epochs=5, batch_size=5, verbose=0)
+				ESTIMATOR_M = KerasClassifier(build_fn=baseline_model, epochs=5, batch_size=5, verbose=0)
+				ESTIMATOR_P = KerasClassifier(build_fn=baseline_model, epochs=5, batch_size=5, verbose=0)
 
 				X_train_m, X_test_m, Y_train_m, Y_test_m = train_test_split(X_mag, dummy_y, test_size=0.01, random_state=seed)
+				X_train_p, X_test_p, Y_train_p, Y_test_p = train_test_split(X_phase, dummy_y, test_size=0.01, random_state=seed)
 
 				print("\nEstimator Fit Starting\n")
-				ESTIMATOR.fit(X_train_m, Y_train_m, verbose=2)
+				ESTIMATOR_M.fit(X_train_m, Y_train_m, verbose=2)
+				ESTIMATOR_P.fit(X_train_p, Y_train_p, verbose=2)
 				print("\nEstimator Fit Done\n")
 
 				TRAINING_TIME = time.time() - tt_start
@@ -219,11 +222,20 @@ def _thread_inferencing_handler():
 			try:
 				print("Beginning Inference")
 				print(f"Inferencing Data - {INFERENCING_DATA}")
+				m_arr = np.array(INFERENCING_DATA[0:53]).reshape(1,53)
+				p_arr = np.array(INFERENCING_DATA[53:106]).reshape(1,53)
 				DATA_AVAILABLE = False
-				predictions = ESTIMATOR.predict(INFERENCING_DATA)
-				predictions = ENCODER.inverse_transform(predictions)
-				predictions_classes = ESTIMATOR.predict_proba(INFERENCING_DATA)
-				PREDICTION = (predictions, predictions_classes)
+
+				predictions_m = ESTIMATOR.predict(m_arr)
+				predictions_m = ENCODER.inverse_transform(predictions_m)
+				predictions_classes_m = ESTIMATOR.predict_proba(m_arr)
+
+				predictions_p = ESTIMATOR.predict(p_arr)
+				predictions_p = ENCODER.inverse_transform(predictions_p)
+				predictions_classes_p = ESTIMATOR.predict_proba(p_arr)
+
+				PREDICTION = (predictions_m, predictions_classes_m,
+							  predictions_p, predictions_classes_p)
 				print(PREDICTION)
 				INFERENCING_STATE = MLInferencingStates.INFERENCING_AVAILABLE
 
