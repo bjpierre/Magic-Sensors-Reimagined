@@ -60,6 +60,7 @@
 import time
 import random
 from enum import Enum
+import logger
 from threading import Thread
 
 import numpy as np
@@ -72,6 +73,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
+from contextlib import redirect_stdout
 import sys
 
 __author__ = "Ryan Lanciloti"
@@ -108,6 +110,7 @@ class MLTrainingStates(Enum):
 	START_TRAINING = 1
 	TRAINING_IN_PROGRESS = 2
 	FINISHED_TRAINING = 3
+	TRAINING_FAILED = 4
 
 
 class MLInferencingStates(Enum):
@@ -134,6 +137,7 @@ ENCODER = None
 DATA_AVAILABLE = False
 INFERENCING_DATA = []
 PREDICTION = ()
+TRAINING_FAILURE_ERROR = "<TRAINING NOT FAILED YET>"
 
 def _thread_training_handler():
 	""" This function is responsible for handling the machine learning
@@ -151,7 +155,7 @@ def _thread_training_handler():
 	while(True):
 		if TRAINING_STATE == MLTrainingStates.START_TRAINING:
 			tt_start = time.time()
-			print("\nStarting Training\n")
+			logger.info("\nStarting Training\n")
 			TRAINING_TIME = 0.0
 			TRAINING_STATE = MLTrainingStates.TRAINING_IN_PROGRESS
 		
@@ -167,33 +171,38 @@ def _thread_training_handler():
 				X_phase = dataset[:,54:107].astype(float)
 				Y = dataset[:,0]
 
-				print("\nModel Read In\n")
+				logger.info("\nModel Read In\n")
 
 				# assign integer to each class
 				ENCODER = LabelEncoder()
 				ENCODER.fit(Y)
 				encoded_Y = ENCODER.transform(Y)
-				print("\nEncoder Fit done\n")
+				logger.info("\nEncoder Fit done\n")
 
 				# one hot encoding
 				dummy_y = np_utils.to_categorical(encoded_Y)
 
+		
 				ESTIMATOR_M = KerasClassifier(build_fn=baseline_model, epochs=250, batch_size=5, verbose=0)
 				ESTIMATOR_P = KerasClassifier(build_fn=baseline_model, epochs=250, batch_size=5, verbose=0)
 
 				X_train_m, X_test_m, Y_train_m, Y_test_m = train_test_split(X_mag, dummy_y, test_size=0.01, random_state=seed)
 				X_train_p, X_test_p, Y_train_p, Y_test_p = train_test_split(X_phase, dummy_y, test_size=0.01, random_state=seed)
 
-				print("\nEstimator Fit Starting\n")
-				ESTIMATOR_M.fit(X_train_m, Y_train_m, verbose=2)
-				ESTIMATOR_P.fit(X_train_p, Y_train_p, verbose=2)
-				print("\nEstimator Fit Done\n")
+				logger.info("\nEstimator Fit Starting\n")
+				with open("fit_redirect.txt", "w+", 0) as f:
+					with redirect_stdout(f):
+						ESTIMATOR_M.fit(X_train_m, Y_train_m, verbose=2)
+						ESTIMATOR_P.fit(X_train_p, Y_train_p, verbose=2)
+				logger.info("\nEstimator Fit Done\n")
 
 				TRAINING_TIME = time.time() - tt_start
 				TRAINING_STATE = MLTrainingStates.FINISHED_TRAINING
-				print("\nTraining Over\n")
+				logger.info("\nTraining Over\n")
 			except Exception as e:
-				print(f"\nSomething Broke: {e}")
+				logger.error(f"\nSomething Broke: {e}")
+				TRAINING_STATE = MLTrainingStates.TRAINING_FAILED
+				TRAINING_FAILURE_ERROR = str(e)
 		
 		if TRAINING_STATE == MLTrainingStates.FINISHED_TRAINING:
 			pass
@@ -214,17 +223,17 @@ def _thread_inferencing_handler():
 		if INFERENCING_STATE == MLInferencingStates.MODEL_STILL_LOADING and \
 		   TRAINING_STATE == MLTrainingStates.FINISHED_TRAINING:
 			INFERENCING_STATE = MLInferencingStates.INFERENCING_AVAILABLE
-			print("\nModel Still Loading\n")
+			logger.info("\nModel Still Loading\n")
 
 		if INFERENCING_STATE == MLInferencingStates.INFERENCING_AVAILABLE and \
 		   DATA_AVAILABLE:
-			print("Data Available")
+			logger.info("Data Available")
 			INFERENCING_STATE = MLInferencingStates.INFERENCING_IN_PROGRESS
 
 		if INFERENCING_STATE == MLInferencingStates.INFERENCING_IN_PROGRESS:
 			try:
-				print("Beginning Inference")
-				print(f"Inferencing Data - {INFERENCING_DATA}")
+				logger.info("Beginning Inference")
+				logger.info(f"Inferencing Data - {INFERENCING_DATA}")
 				m_arr = np.array(INFERENCING_DATA[0:53]).reshape(1,53)
 				p_arr = np.array(INFERENCING_DATA[53:106]).reshape(1,53)
 				DATA_AVAILABLE = False
@@ -239,11 +248,11 @@ def _thread_inferencing_handler():
 
 				PREDICTION = (predictions_m, predictions_classes_m,
 							  predictions_p, predictions_classes_p)
-				print(PREDICTION)
+				logger.info(PREDICTION)
 				INFERENCING_STATE = MLInferencingStates.INFERENCING_AVAILABLE
 
 			except Exception as e:
-				print(f"Error: {e}")
+				logger.info(f"Error: {e}")
 
 
 def baseline_model():
