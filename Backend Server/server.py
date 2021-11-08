@@ -266,7 +266,7 @@ def _server_post_keep_alive() -> (str, int):
 	return ("Success", 200)
 
 
-@app.route("/ml/get/inference_results", methods=['POST'])
+@app.route("/ml/get/inference_results", methods=['GET'])
 def _ml_get_inference_results():
 	if(tfh.PREDICTION == ()):
 		return ("DATA NOT AVAILABLE", 200)

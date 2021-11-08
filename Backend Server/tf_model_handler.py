@@ -178,8 +178,8 @@ def _thread_training_handler():
 				# one hot encoding
 				dummy_y = np_utils.to_categorical(encoded_Y)
 
-				ESTIMATOR_M = KerasClassifier(build_fn=baseline_model, epochs=1, batch_size=5, verbose=0)
-				ESTIMATOR_P = KerasClassifier(build_fn=baseline_model, epochs=1, batch_size=5, verbose=0)
+				ESTIMATOR_M = KerasClassifier(build_fn=baseline_model, epochs=250, batch_size=5, verbose=0)
+				ESTIMATOR_P = KerasClassifier(build_fn=baseline_model, epochs=250, batch_size=5, verbose=0)
 
 				X_train_m, X_test_m, Y_train_m, Y_test_m = train_test_split(X_mag, dummy_y, test_size=0.01, random_state=seed)
 				X_train_p, X_test_p, Y_train_p, Y_test_p = train_test_split(X_phase, dummy_y, test_size=0.01, random_state=seed)
