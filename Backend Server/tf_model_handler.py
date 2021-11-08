@@ -73,6 +73,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
+from contextlib import redirect_stdout
 import sys
 
 __author__ = "Ryan Lanciloti"
@@ -181,6 +182,7 @@ def _thread_training_handler():
 				# one hot encoding
 				dummy_y = np_utils.to_categorical(encoded_Y)
 
+		
 				ESTIMATOR_M = KerasClassifier(build_fn=baseline_model, epochs=250, batch_size=5, verbose=0)
 				ESTIMATOR_P = KerasClassifier(build_fn=baseline_model, epochs=250, batch_size=5, verbose=0)
 
@@ -188,8 +190,10 @@ def _thread_training_handler():
 				X_train_p, X_test_p, Y_train_p, Y_test_p = train_test_split(X_phase, dummy_y, test_size=0.01, random_state=seed)
 
 				logger.info("\nEstimator Fit Starting\n")
-				ESTIMATOR_M.fit(X_train_m, Y_train_m, verbose=2)
-				ESTIMATOR_P.fit(X_train_p, Y_train_p, verbose=2)
+				with open("fit_redirect.txt", "w+", 0) as f:
+					with redirect_stdout(f):
+						ESTIMATOR_M.fit(X_train_m, Y_train_m, verbose=2)
+						ESTIMATOR_P.fit(X_train_p, Y_train_p, verbose=2)
 				logger.info("\nEstimator Fit Done\n")
 
 				TRAINING_TIME = time.time() - tt_start
@@ -198,7 +202,7 @@ def _thread_training_handler():
 			except Exception as e:
 				logger.error(f"\nSomething Broke: {e}")
 				TRAINING_STATE = MLTrainingStates.TRAINING_FAILED
-				TRAINING_FAILURE_ERROR = e
+				TRAINING_FAILURE_ERROR = str(e)
 		
 		if TRAINING_STATE == MLTrainingStates.FINISHED_TRAINING:
 			pass
