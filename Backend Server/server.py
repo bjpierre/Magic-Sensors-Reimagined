@@ -276,6 +276,7 @@ def _ml_post_inference():
 		return ("Success", 200)
 
 	if INFERENCING_STATE == tfh.MLInferencingStates.INFERENCING_IN_PROGRESS:
+		print("Inferencing in progress")
 		return ("Success", 200)
 
 	string = str(request.json["payload"])

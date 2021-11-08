@@ -174,7 +174,7 @@ def _thread_training_handler():
 				# one hot encoding
 				dummy_y = np_utils.to_categorical(encoded_Y)
 
-				ESTIMATOR = KerasClassifier(build_fn=baseline_model, epochs=250, batch_size=5, verbose=0)
+				ESTIMATOR = KerasClassifier(build_fn=baseline_model, epochs=5, batch_size=5, verbose=0)
 
 				X_train_m, X_test_m, Y_train_m, Y_test_m = train_test_split(X_mag, dummy_y, test_size=0.01, random_state=seed)
 
@@ -210,10 +210,12 @@ def _thread_inferencing_handler():
 
 		if INFERENCING_STATE == MLInferencingStates.INFERENCING_AVAILABLE and \
 		   DATA_AVAILABLE:
+		   	print("Data Available")
 			INFERENCING_STATE = MLInferencingStates.INFERENCING_IN_PROGRESS
 
 		if INFERENCING_STATE == MLInferencingStates.INFERENCING_IN_PROGRESS:
 			try:
+				print("Beginning Inference")
 				DATA_AVAILABLE = False
 				predictions = ESTIMATOR.predict(INFERENCING_DATA)
 				predictions = ENCODER.inverse_transform(predictions)
