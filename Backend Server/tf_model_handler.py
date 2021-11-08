@@ -229,13 +229,13 @@ def _thread_inferencing_handler():
 				p_arr = np.array(INFERENCING_DATA[53:106]).reshape(1,53)
 				DATA_AVAILABLE = False
 
-				predictions_m = ESTIMATOR.predict(m_arr)
+				predictions_m = ESTIMATOR_M.predict(m_arr)
 				predictions_m = ENCODER.inverse_transform(predictions_m)
-				predictions_classes_m = ESTIMATOR.predict_proba(m_arr)
+				predictions_classes_m = ESTIMATOR_M.predict_proba(m_arr)
 
-				predictions_p = ESTIMATOR.predict(p_arr)
+				predictions_p = ESTIMATOR_P.predict(p_arr)
 				predictions_p = ENCODER.inverse_transform(predictions_p)
-				predictions_classes_p = ESTIMATOR.predict_proba(p_arr)
+				predictions_classes_p = ESTIMATOR_P.predict_proba(p_arr)
 
 				PREDICTION = (predictions_m, predictions_classes_m,
 							  predictions_p, predictions_classes_p)
