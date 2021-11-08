@@ -130,6 +130,7 @@ TRAINING_TIME = 0.0
 TRAINING_DATA = []
 DATA_TYPE = "NOT_SET"
 ESTIMATOR = None
+ENCODER = None
 PREDICTION = ()
 
 def _thread_training_handler():
@@ -160,14 +161,17 @@ def _thread_training_handler():
 			Y = dataset[:,0]
 
 			# assign integer to each class
-			encoder = LabelEncoder()
-			encoder.fit(Y)
-			encoded_Y = encoder.transform(Y)
+			ENCODER = LabelEncoder()
+			ENCODER.fit(Y)
+			encoded_Y = ENCODER.transform(Y)
 
 			# one hot encoding
 			dummy_y = np_utils.to_categorical(encoded_Y)
 
 			ESTIMATOR = KerasClassifier(build_fn=baseline_model, epochs=250, batch_size=5, verbose=0)
+
+			X_train_m, X_test_m, Y_train_m, Y_test_m = train_test_split(X_mag, dummy_y, test_size=0.0, random_state=seed)
+
 			ESTIMATOR.fit(X_train_m, Y_train_m)
 
 			TRAINING_TIME = time.time() - tt_start
@@ -182,25 +186,25 @@ def _thread_inferencing_handler():
 	"""
 	global INFERENCING_STATE
 	global TRAINING_STATE
-	global INFERENCING_AVAILABLE
 	global INFERENCING_DATA
 	global PREDICTION
 	global DATA_AVAILABLE
+	global ESTIMATOR
 
 	while(True):
 		if INFERENCING_STATE == MLInferencingStates.MODEL_STILL_LOADING and \
 		   TRAINING_STATE == MLTrainingStates.FINISHED_TRAINING:
 			INFERENCING_STATE = MLInferencingStates.INFERENCING_AVAILABLE
 
-		if INFERENCING_STATE == MLInferencingStates.INFERENCING_AVAILABLE and \ 
+		if INFERENCING_STATE == MLInferencingStates.INFERENCING_AVAILABLE and \
 		   DATA_AVAILABLE:
 			INFERENCING_STATE = MLInferencingStates.INFERENCING_IN_PROGRESS
 
 		if INFERENCING_STATE.INFERENCING_IN_PROGRESS:
 			DATA_AVAILABLE = False
 			prediction = ESTIMATOR.predict(INFERENCING_DATA)
-			predictions = encoder.inverse_transform(predictions)
-			predictions_classes = estimator.predict_proba(INFERENCING_DATA)
+			predictions = ENCODER.inverse_transform(predictions)
+			predictions_classes = ESTIMATOR.predict_proba(INFERENCING_DATA)
 			PREDICTION = (predictions, predictions_classes)
 			INFERENCING_STATE = MLInferencingStates.INFERENCING_AVAILABLE
 

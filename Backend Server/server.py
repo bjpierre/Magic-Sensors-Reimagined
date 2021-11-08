@@ -167,7 +167,7 @@ def _debug_get_version_tf_model_handler() -> str:
 	:rtype: str
 	"""
 	logger.info(f"{request.remote_addr} - Invoked debug/get/version/tf_model_handler")
-	return tf_model_handler.__version__
+	return tfh.__version__
 
 
 @app.route("/debug/get/exists", methods=['GET'])
@@ -364,14 +364,14 @@ def _training_post_train() -> (str, int):
 		return ("Error, no data provided", 402)
 
 	if(str(body['TYPE']) == "RSSI"):
-		tf_model_handler.DATA_TYPE = "RSSI"
-		tf_model_handler.TRAINING_DATA = body["DATA"]
-		tf_model_handler.TRAINING_STATE = tf_model_handler.MLTrainingStates.START_TRAINING
+		tfh.DATA_TYPE = "RSSI"
+		tfh.TRAINING_DATA = body["DATA"]
+		tfh.TRAINING_STATE = tfh.MLTrainingStates.START_TRAINING
 
 	elif(str(body['TYPE']) == "CSI"):
-		tf_model_handler.DATA_TYPE = "CSI"
-		tf_model_handler.TRAINING_DATA = body["DATA"]
-		tf_model_handler.TRAINING_STATE = tf_model_handler.MLTrainingStates.START_TRAINING
+		tfh.DATA_TYPE = "CSI"
+		tfh.TRAINING_DATA = body["DATA"]
+		tfh.TRAINING_STATE = tfh.MLTrainingStates.START_TRAINING
 	
 	else:
 		logger.error(f"{request.remote_addr} - Data type doesn't exist")
@@ -391,7 +391,7 @@ def _training_get_training_status() -> str:
 	docs for more information on the states available.
 	:rtype: str
 	"""
-	return tf_model_handler.TRAINING_STATE.name
+	return tfh.TRAINING_STATE.name
 
 @app.route("/training/get/training_time", methods=['GET'])
 def _training_get_training_time() -> str:
@@ -402,7 +402,7 @@ def _training_get_training_time() -> str:
 	:return: Total training time in seconds 
 	:rtype: str
 	"""
-	return str(tf_model_handler.TRAINING_TIME)
+	return str(tfh.TRAINING_TIME)
 
 
 def _thread_server_manager():
