@@ -61,6 +61,7 @@ import time
 import random
 from enum import Enum
 from threading import Thread
+from types import NoneType
 
 import numpy
 import pandas
@@ -205,13 +206,17 @@ def _thread_inferencing_handler():
 			INFERENCING_STATE = MLInferencingStates.INFERENCING_IN_PROGRESS
 
 		if INFERENCING_STATE.INFERENCING_IN_PROGRESS:
-			DATA_AVAILABLE = False
-			predictions = ESTIMATOR.predict(INFERENCING_DATA)
-			predictions = ENCODER.inverse_transform(predictions)
-			predictions_classes = ESTIMATOR.predict_proba(INFERENCING_DATA)
-			PREDICTION = (predictions, predictions_classes)
-			print(PREDICTION)
-			INFERENCING_STATE = MLInferencingStates.INFERENCING_AVAILABLE
+			try:
+				DATA_AVAILABLE = False
+				predictions = ESTIMATOR.predict(INFERENCING_DATA)
+				predictions = ENCODER.inverse_transform(predictions)
+				predictions_classes = ESTIMATOR.predict_proba(INFERENCING_DATA)
+				PREDICTION = (predictions, predictions_classes)
+				print(PREDICTION)
+				INFERENCING_STATE = MLInferencingStates.INFERENCING_AVAILABLE
+
+			except Exception as e:
+				print(f"Error: {e}")
 
 
 def baseline_model():
