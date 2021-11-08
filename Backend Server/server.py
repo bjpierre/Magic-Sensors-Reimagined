@@ -268,15 +268,12 @@ def _server_post_keep_alive() -> (str, int):
 
 @app.route("/ml/post/inference", methods=['POST'])
 def _ml_post_inference():
-	global DATA_AVAILABLE
-	global INFERENCING_DATA
-	global INFERENCING_STATE
 
-	if DATA_AVAILABLE:
+	if tfh.DATA_AVAILABLE:
 		print("Data Available")
 		return ("Success", 200)
 
-	if INFERENCING_STATE == tfh.MLInferencingStates.INFERENCING_IN_PROGRESS:
+	if tfh.INFERENCING_STATE == tfh.MLInferencingStates.INFERENCING_IN_PROGRESS:
 		print("Inferencing in progress")
 		return ("Success", 200)
 
@@ -288,8 +285,8 @@ def _ml_post_inference():
 	if(len(stringarr) != 106 or open_brace_cnt != 1 or close_brace_cnt != 1):
 		return ("Malformed Packet Recieved", 400)
 
-	DATA_AVAILABLE = list(string)
-	DATA_AVAILABLE = True
+	tfh.INFERENCING_DATA = list(string)
+	tfh.DATA_AVAILABLE = True
 
 	return ("Success", 200)
 
