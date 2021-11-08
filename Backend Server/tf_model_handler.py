@@ -131,6 +131,8 @@ TRAINING_DATA = []
 DATA_TYPE = "NOT_SET"
 ESTIMATOR = None
 ENCODER = None
+DATA_AVAILABLE = False
+INFERENCING_DATA = []
 PREDICTION = ()
 
 def _thread_training_handler():

@@ -14,7 +14,7 @@ import time
 from flask import Flask, request, Response
 from collections import Counter
 from datetime import datetime
-from tf_model_handler import INFERENCING_STATE
+from tf_model_handler import INFERENCING_STATE, INFERENCING_DATA, DATA_AVAILABLE
 import tf_model_handler as tfh
 
 __author__ = "Ryan Lanciloti"
@@ -28,8 +28,6 @@ RPI_SERVERS = list()
 RPI_SERVERS_LOCK = threading.Lock()
 
 MAX_TIMEOUT = 30.0
-DATA_AVAILABLE = False
-INFERENCING_DATA = []
 
 class RPIServer:
 	def __init__(self, ip_addr: str, name: str, id: int) -> None:
