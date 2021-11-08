@@ -270,7 +270,6 @@ def _server_post_keep_alive() -> (str, int):
 def _ml_post_inference():
 
 	if tfh.DATA_AVAILABLE:
-		print("Data Available")
 		return ("Success", 200)
 
 	if tfh.INFERENCING_STATE == tfh.MLInferencingStates.INFERENCING_IN_PROGRESS:
