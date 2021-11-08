@@ -284,7 +284,7 @@ def _ml_post_inference():
 	if(len(stringarr) != 106 or open_brace_cnt != 1 or close_brace_cnt != 1):
 		return ("Malformed Packet Recieved", 400)
 
-	tfh.INFERENCING_DATA = list(string)
+	tfh.INFERENCING_DATA = stringarr
 	tfh.DATA_AVAILABLE = True
 
 	return ("Success", 200)
