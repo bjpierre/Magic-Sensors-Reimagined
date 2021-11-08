@@ -266,6 +266,20 @@ def _server_post_keep_alive() -> (str, int):
 	return ("Success", 200)
 
 
+@app.route("/ml/get/inference_results", methods=['POST'])
+def _ml_get_inference_results():
+	if(tfh.PREDICTION == ()):
+		return ("DATA NOT AVAILABLE", 200)
+
+	ret = {}
+	ret["PREDICTION_M"] = tfh.PREDICTION[0].tolist()
+	ret["PREDICTION_M_CLASS"] = tfh.PREDICTION[1].tolist()
+	ret["PREDICTION_P"] = tfh.PREDICTION[2].tolist()
+	ret["PREDICTION_P_CLASS"] = tfh.PREDICTION[3].tolist()
+
+	return ret
+
+
 @app.route("/ml/post/inference", methods=['POST'])
 def _ml_post_inference():
 
