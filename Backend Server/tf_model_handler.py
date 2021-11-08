@@ -61,7 +61,6 @@ import time
 import random
 from enum import Enum
 from threading import Thread
-from types import NoneType
 
 import numpy
 import pandas
