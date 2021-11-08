@@ -210,7 +210,7 @@ def _thread_inferencing_handler():
 
 		if INFERENCING_STATE == MLInferencingStates.INFERENCING_AVAILABLE and \
 		   DATA_AVAILABLE:
-		   	print("Data Available")
+			print("Data Available")
 			INFERENCING_STATE = MLInferencingStates.INFERENCING_IN_PROGRESS
 
 		if INFERENCING_STATE == MLInferencingStates.INFERENCING_IN_PROGRESS:
