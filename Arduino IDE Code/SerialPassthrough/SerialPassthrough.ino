@@ -1,5 +1,6 @@
 #define RXD2 16
 #define TXD2 17
+#define ONBOARD_LED  2
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -9,8 +10,8 @@
 #define isDebug false
 
 //WIFI info - secretize
-const char* ssid = "";
-const char* password = "";
+const char* ssid = "The515";
+const char* password = "Bluemoon696!";
 
 //NTP INFO
 const char* ntpServer = "pool.ntp.org";
@@ -21,10 +22,9 @@ const int   daylightOffset_sec = 3600;
 
 
 //TODO Clean this up heavily
-const char* ProdServerHostName = "http://sddec21-09.ece.iastate.edu:20002/debug/post/echo";
+const char* ProdServerHostName = "http://sddec21-09.ece.iastate.edu:20002/ml/post/inference";
 const char* ProdServerGETHostName = "http://sddec21-09.ece.iastate.edu:20002/debug/get/version/server";
 const char* DebugServerHostName = "https://postman-echo.com/post";
-String apiKey = "0CG0I76JOZLIZ7JB";
 
 WiFiClient client;
 HTTPClient http;
@@ -60,25 +60,19 @@ void setup() {
   Serial.print("Got time as : ");
   printLocalTime();
   Serial.printf("\nServer: %s \n", server);
-  getTest();
   //printLocalTime();
+  pinMode(ONBOARD_LED,OUTPUT);
   Serial.println("**END SETUP**");
 }
 
 void loop() { //Choose Serial1 or Serial2 as required'
   while (Serial2.available()) {
+    //Serial.print('.');
     char val = char(Serial2.read());   
     strBuilder += val;
     if(val == ']'){
       strStorer = String(strBuilder);
-      //xTaskCreate(
-      //  uploadToServer,
-      //  "Post Data",
-      //  10000,
-      //  (void*)&strStorer,
-      //  1,
-      //  NULL       
-      //);
+      Serial.println(strStorer);
       uploadToServer((void*)&strStorer);
       strBuilder="";
     }
@@ -88,16 +82,12 @@ void loop() { //Choose Serial1 or Serial2 as required'
 void uploadToServer(void * postData){
     http.begin(client, server);
     http.addHeader("Content-Type", "application/json");
-    String httpRequestData = "{\"payload\":\"" + *((String*)postData) + "\"}"; 
+    String httpRequestData = "{\"payload\":\"" + *((String*)postData) + "\"}";
+    digitalWrite(ONBOARD_LED,HIGH); 
     int httpCode = http.POST(httpRequestData);
-    Serial.print(httpCode);
-    if(httpCode<0){
-      Serial.print(':');
-      Serial.print(http.errorToString(httpCode));
-    }
-    Serial.println();
+    //Serial.println(httpCode);
     http.end();
-    //vTaskDelete(NULL);
+    digitalWrite(ONBOARD_LED,LOW);
 }
 
 void getTest(){

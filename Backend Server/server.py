@@ -12,9 +12,10 @@ import os, sys
 import logger
 import time
 from flask import Flask, request, Response
+from collections import Counter
 from datetime import datetime
-import tf_model_handler
-#import tensorflow as tf
+from tf_model_handler import INFERENCING_STATE, INFERENCING_DATA, DATA_AVAILABLE
+import tf_model_handler as tfh
 
 __author__ = "Ryan Lanciloti"
 __credits__ = ["Ryan Lanciloti"]
@@ -164,7 +165,7 @@ def _debug_get_version_tf_model_handler() -> str:
 	:rtype: str
 	"""
 	logger.info(f"{request.remote_addr} - Invoked debug/get/version/tf_model_handler")
-	return tf_model_handler.__version__
+	return tfh.__version__
 
 
 @app.route("/debug/get/exists", methods=['GET'])
@@ -179,8 +180,20 @@ def _debug_get_exists() -> (str, int):
 	return ("Success", 200)
 
 
-@app.route("/server/get/list_of_servers", methods=['GET'])
-def _server_get_list_of_servers() -> str:
+@app.route("/debug/get/training_failure", methods=['GET'])
+def _debug_get_training_failure() -> (str, int):
+	""" This function is for the app to check if the backend server exists. If
+	the app makes this request, it can check to see if the server is answering
+	requests.
+
+	:return: Simple feedback and a 200 status code
+	:rtype: (str, int)
+	"""
+	return (tfh.TRAINING_FAILURE_ERROR, 200)
+
+
+@app.route("/app/get/list_of_servers", methods=['GET'])
+def _app_get_list_of_servers() -> str:
 	""" Returns a list of all servers that have messaged the backend server
 	within the past 15 seconds.
 
@@ -265,6 +278,58 @@ def _server_post_keep_alive() -> (str, int):
 	return ("Success", 200)
 
 
+@app.route("/ml/get/inference_results", methods=['GET'])
+def _ml_get_inference_results():
+	if(tfh.PREDICTION == ()):
+		return ("DATA NOT AVAILABLE", 200)
+
+	ret = {}
+	ret["PREDICTION_M"] = tfh.PREDICTION[0].tolist()
+	ret["PREDICTION_M_CLASS"] = tfh.PREDICTION[1].tolist()
+	ret["PREDICTION_P"] = tfh.PREDICTION[2].tolist()
+	ret["PREDICTION_P_CLASS"] = tfh.PREDICTION[3].tolist()
+
+	return ret
+
+
+@app.route("/ml/get/test_predicition_results", methods=['GET'])
+def _ml_get_test_predicition_results():
+	if(tfh.PREDICTION == ()):
+		return ("DATA NOT AVAILABLE", 200)
+
+	ret = {}
+	ret["TEST_PREDICTION_M"] = tfh.TEST_DATA_PREDICTION[0].tolist()
+	ret["TEST_PREDICTION_M_CLASS"] = tfh.TEST_DATA_PREDICTION[1].tolist()
+	ret["TEST_PREDICTION_P"] = tfh.TEST_DATA_PREDICTION[2].tolist()
+	ret["TEST_PREDICTION_P_CLASS"] = tfh.TEST_DATA_PREDICTION[3].tolist()
+
+	return ret
+
+
+@app.route("/ml/post/inference", methods=['POST'])
+def _ml_post_inference():
+
+	if tfh.DATA_AVAILABLE:
+		return ("Success", 200)
+
+	if tfh.INFERENCING_STATE == tfh.MLInferencingStates.INFERENCING_IN_PROGRESS:
+		print("Inferencing in progress")
+		return ("Success", 200)
+
+	string = str(request.json["payload"])
+	open_brace_cnt = Counter(string).get("[")
+	close_brace_cnt = Counter(string).get("]")
+	string = string.strip("[]")
+	stringarr = string.split(",")
+	if(len(stringarr) != 106 or open_brace_cnt != 1 or close_brace_cnt != 1):
+		return ("Malformed Packet Recieved", 400)
+
+	tfh.INFERENCING_DATA = [float(x) for x in stringarr]
+	tfh.DATA_AVAILABLE = True
+
+	return ("Success", 200)
+
+
 @app.route("/training/post/train", methods=['POST'])
 def _training_post_train() -> (str, int):
 	""" This is going to be the function that kicks off training. It will
@@ -337,14 +402,14 @@ def _training_post_train() -> (str, int):
 		return ("Error, no data provided", 402)
 
 	if(str(body['TYPE']) == "RSSI"):
-		tf_model_handler.DATA_TYPE = "RSSI"
-		tf_model_handler.TRAINING_DATA = body["DATA"]
-		tf_model_handler.STATE = tf_model_handler.MLStates.START_TRAINING
+		tfh.DATA_TYPE = "RSSI"
+		tfh.TRAINING_DATA = body["DATA"]
+		tfh.TRAINING_STATE = tfh.MLTrainingStates.START_TRAINING
 
 	elif(str(body['TYPE']) == "CSI"):
-		tf_model_handler.DATA_TYPE = "CSI"
-		tf_model_handler.TRAINING_DATA = body["DATA"]
-		tf_model_handler.STATE = tf_model_handler.MLStates.START_TRAINING
+		tfh.DATA_TYPE = "CSI"
+		tfh.TRAINING_DATA = body["DATA"]
+		tfh.TRAINING_STATE = tfh.MLTrainingStates.START_TRAINING
 	
 	else:
 		logger.error(f"{request.remote_addr} - Data type doesn't exist")
@@ -364,7 +429,7 @@ def _training_get_training_status() -> str:
 	docs for more information on the states available.
 	:rtype: str
 	"""
-	return tf_model_handler.STATE.name
+	return tfh.TRAINING_STATE.name
 
 @app.route("/training/get/training_time", methods=['GET'])
 def _training_get_training_time() -> str:
@@ -375,7 +440,7 @@ def _training_get_training_time() -> str:
 	:return: Total training time in seconds 
 	:rtype: str
 	"""
-	return str(tf_model_handler.TRAINING_TIME)
+	return str(tfh.TRAINING_TIME)
 
 
 def _thread_server_manager():
