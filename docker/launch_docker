@@ -1,2 +1,2 @@
 docker pull ryanjl9/senior-design
-docker run --rm --name sd2021 ryanjl9/senior-design &
+docker run -rm --name sd2021 -p 20001:20001 -p 20002:20002 ryanjl9/senior-design &
