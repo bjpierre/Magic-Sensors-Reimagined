@@ -141,17 +141,17 @@ def _debug_get_version_server() -> str:
 	return __version__
 
 
-# @app.route("/debug/get/version/tensorflow", methods=['GET'])
-# def _debug_get_version_tensorflow() -> str:
-# 	""" This is a debug function that allows an end user to get the 
-# 	current version of tensorflow running on backend server. This is mainly
-# 	used to verify that tensorflow is installed on the server.
+@app.route("/debug/get/version/tensorflow", methods=['GET'])
+def _debug_get_version_tensorflow() -> str:
+	""" This is a debug function that allows an end user to get the 
+	current version of tensorflow running on backend server. This is mainly
+	used to verify that tensorflow is installed on the server.
 
-# 	:return: Tensorflow version
-# 	:rtype: str
-# 	"""
-# 	logger.info(f"{request.remote_addr} - Invoked debug/get/version/tensorflow")
-# 	return tf.version.VERSION
+	:return: Tensorflow version
+	:rtype: str
+	"""
+	logger.info(f"{request.remote_addr} - Invoked debug/get/version/tensorflow")
+	return tf.version.VERSION
 
 
 @app.route("/debug/get/version/tf_model_handler", methods=['GET'])
